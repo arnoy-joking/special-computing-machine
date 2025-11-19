@@ -1,3 +1,76 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "album-art-1",
+      "description": "Abstract colorful geometric shapes",
+      "imageUrl": "https://images.unsplash.com/photo-1636220409261-794e0464ca2b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxhYnN0cmFjdCUyMGNvbG9yZnVsfGVufDB8fHx8MTc2MzUwODQ3M3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "abstract colorful"
+    },
+    {
+      "id": "album-art-2",
+      "description": "Serene landscape with mountains and a lake",
+      "imageUrl": "https://images.unsplash.com/photo-1662189793032-ccb6135a9159?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxzZXJlbmUlMjBsYW5kc2NhcGV8ZW58MHx8fHwxNzYzNTI3MDc2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "serene landscape"
+    },
+    {
+      "id": "album-art-3",
+      "description": "Close-up of a vintage record player",
+      "imageUrl": "https://images.unsplash.com/photo-1619468654256-1b3be59881df?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHx2aW50YWdlJTIwcmVjb3JkfGVufDB8fHx8MTc2MzQ4Njk1NXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "vintage record"
+    },
+    {
+      "id": "album-art-4",
+      "description": "Monochromatic urban cityscape at night",
+      "imageUrl": "https://images.unsplash.com/photo-1588312744377-2adfb7b8578a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHx1cmJhbiUyMG5pZ2h0fGVufDB8fHx8MTc2MzU1ODU0N3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "urban night"
+    },
+    {
+      "id": "album-art-5",
+      "description": "Psychedelic swirling colors",
+      "imageUrl": "https://images.unsplash.com/photo-1621974639426-4cbecbd347eb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxwc3ljaGVkZWxpYyUyMGNvbG9yc3xlbnwwfHx8fDE3NjM1NzE3MTZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "psychedelic colors"
+    },
+    {
+      "id": "album-art-6",
+      "description": "Minimalist design with a single shape",
+      "imageUrl": "https://images.unsplash.com/photo-1763373538716-a792047741d0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxtaW5pbWFsaXN0JTIwZGVzaWdufGVufDB8fHx8MTc2MzUxMzE5MXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "minimalist design"
+    },
+    {
+      "id": "album-art-7",
+      "description": "Vibrant floral pattern",
+      "imageUrl": "https://images.unsplash.com/photo-1708281105381-44c700c1b0f8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHx2aWJyYW50JTIwZmxvcmFsfGVufDB8fHx8MTc2MzUzODk1MXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "vibrant floral"
+    },
+    {
+      "id": "album-art-8",
+      "description": "A person walking on a lonely road",
+      "imageUrl": "https://images.unsplash.com/photo-1587572707442-67f1f0006202?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxsb25lbHklMjByb2FkfGVufDB8fHx8MTc2MzU3MTcxNnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "lonely road"
+    },
+    {
+      "id": "album-art-9",
+      "description": "Retro wave synthwave background",
+      "imageUrl": "https://images.unsplash.com/flagged/photo-1563693704951-5a78fc150317?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxyZXRybyUyMHN5bnRod2F2ZXxlbnwwfHx8fDE3NjM0NzA2NjB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "retro synthwave"
+    },
+    {
+      "id": "album-art-10",
+      "description": "Galaxy with stars and nebulae",
+      "imageUrl": "https://images.unsplash.com/photo-1600596493180-139d707ea822?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8Z2FsYXh5JTIwbmVidWxhfGVufDB8fHx8MTc2MzUzMzA3Mnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "galaxy nebula"
+    },
+    {
+      "id": "album-art-11",
+      "description": "Watercolor painting of a forest",
+      "imageUrl": "https://images.unsplash.com/photo-1683802175902-00a8bbd1ffdb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHx3YXRlcmNvbG9yJTIwZm9yZXN0fGVufDB8fHx8MTc2MzU3MTcxNnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "watercolor forest"
+    },
+    {
+      "id": "album-art-12",
+      "description": "A portrait with dramatic lighting",
+      "imageUrl": "https://images.unsplash.com/photo-1675608575987-7e8904024970?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8ZHJhbWF0aWMlMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjM1MzUwMjh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "dramatic portrait"
+    }
+  ]
 }
