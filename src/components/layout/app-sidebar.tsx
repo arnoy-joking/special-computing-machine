@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Library, Mic2, Music, Search, Menu, X } from "lucide-react";
+import { Library, Mic2, Music, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useUIStore } from "@/lib/store";
@@ -29,6 +29,9 @@ export default function AppSidebar() {
             <Mic2 className="text-accent" size={32} />
             <h1 className="text-2xl font-bold text-white">NodeMusic</h1>
         </Link>
+        <Button variant="ghost" size="icon" onClick={toggleSidebar} className="text-muted-foreground">
+          <X />
+        </Button>
       </div>
       <nav className="flex flex-col gap-2">
         <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-2">Menu</p>

@@ -9,6 +9,7 @@ import { useUIStore } from '@/lib/store';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Menu } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 export default function RootLayout({
   children,
@@ -16,6 +17,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const { isSidebarOpen, toggleSidebar } = useUIStore();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
@@ -34,19 +40,20 @@ export default function RootLayout({
             <main
               className={cn(
                 "flex-1 overflow-y-auto overflow-x-hidden pb-24 transition-all duration-300 ease-in-out",
-                isSidebarOpen ? "pl-64" : "pl-0"
+                 isClient && isSidebarOpen ? "pl-64" : "pl-0"
               )}
             >
-              <div className="p-4 fixed top-4 left-4 z-50">
-                 <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={toggleSidebar}
-                    className={cn(isSidebarOpen && 'hidden')}
-                  >
-                    <Menu />
-                  </Button>
-              </div>
+              {isClient && !isSidebarOpen && (
+                <div className="p-4 fixed top-4 left-4 z-50">
+                   <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={toggleSidebar}
+                    >
+                      <Menu />
+                    </Button>
+                </div>
+              )}
               {children}
             </main>
             <PlayerFooter />
