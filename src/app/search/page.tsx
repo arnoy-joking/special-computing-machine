@@ -1,6 +1,6 @@
 import { SearchInput } from "@/components/search/search-input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MusicCarousel } from "@/components/music/music-carousel";
+import MusicCarousel from "@/components/music/music-carousel";
 import { homeFeed } from "@/lib/mock-data";
 
 export default function SearchPage() {
