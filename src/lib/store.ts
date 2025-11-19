@@ -4,15 +4,24 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type { Track } from "./types";
 
+type RepeatMode = 'off' | 'all' | 'one';
+
 interface PlayerState {
   tracks: Track[];
+  originalTracks: Track[];
   currentTrackIndex: number;
   isPlaying: boolean;
+  shuffle: boolean;
+  repeatMode: RepeatMode;
+  volume: number;
   setQueue: (tracks: Track[], startIndex?: number) => void;
   play: () => void;
   pause: () => void;
   next: () => void;
   previous: () => void;
+  toggleShuffle: () => void;
+  toggleRepeatMode: () => void;
+  setVolume: (volume: number) => void;
 }
 
 interface LibraryState {
@@ -40,39 +49,93 @@ export const useUIStore = create<UIState>()(
   )
 );
 
-const usePlayerStore = create<PlayerState>()((set, get) => ({
-  tracks: [],
-  currentTrackIndex: -1,
-  isPlaying: false,
-  setQueue: (tracks, startIndex = 0) => {
-    const { addToHistory } = useLibraryStore.getState();
-    const trackToPlay = tracks[startIndex];
-    if (trackToPlay) {
-      addToHistory(trackToPlay);
-      set({ tracks, currentTrackIndex: startIndex, isPlaying: true });
+const usePlayerStore = create<PlayerState>()(
+  persist(
+    (set, get) => ({
+      tracks: [],
+      originalTracks: [],
+      currentTrackIndex: -1,
+      isPlaying: false,
+      shuffle: false,
+      repeatMode: 'off',
+      volume: 0.5,
+      setQueue: (tracks, startIndex = 0) => {
+        const { addToHistory } = useLibraryStore.getState();
+        const trackToPlay = tracks[startIndex];
+        if (trackToPlay) {
+          addToHistory(trackToPlay);
+          set({ tracks, originalTracks: tracks, currentTrackIndex: startIndex, isPlaying: true });
+        }
+      },
+      play: () => set({ isPlaying: true }),
+      pause: () => set({ isPlaying: false }),
+      next: () => {
+        const { tracks, currentTrackIndex, repeatMode } = get();
+        if (tracks.length > 0) {
+          let nextIndex;
+          if (repeatMode === 'one') {
+            nextIndex = currentTrackIndex;
+          } else if (currentTrackIndex === tracks.length - 1 && repeatMode === 'all') {
+            nextIndex = 0;
+          } else {
+            nextIndex = (currentTrackIndex + 1) % tracks.length;
+          }
+
+          if (currentTrackIndex === tracks.length -1 && repeatMode === 'off') {
+            // Do nothing, end of queue
+            set({ isPlaying: false });
+            return;
+          }
+          
+          const { addToHistory } = useLibraryStore.getState();
+          addToHistory(tracks[nextIndex]);
+          set({ currentTrackIndex: nextIndex, isPlaying: true });
+        }
+      },
+      previous: () => {
+        const { tracks, currentTrackIndex } = get();
+        if (tracks.length > 0) {
+          const prevIndex = (currentTrackIndex - 1 + tracks.length) % tracks.length;
+          const { addToHistory } = useLibraryStore.getState();
+          addToHistory(tracks[prevIndex]);
+          set({ currentTrackIndex: prevIndex, isPlaying: true });
+        }
+      },
+      toggleShuffle: () => {
+        const { shuffle, originalTracks, tracks, currentTrackIndex } = get();
+        const newShuffleState = !shuffle;
+        if (newShuffleState) {
+          const currentTrack = tracks[currentTrackIndex];
+          const shuffled = [...originalTracks].sort(() => Math.random() - 0.5);
+          const newIndex = shuffled.findIndex(t => t.id === currentTrack.id);
+          // Move current track to the start
+          if (newIndex > -1) {
+            shuffled.splice(newIndex, 1);
+            shuffled.unshift(currentTrack);
+          }
+          set({ tracks: shuffled, currentTrackIndex: 0, shuffle: newShuffleState });
+        } else {
+          const currentTrack = tracks[currentTrackIndex];
+          const newIndex = originalTracks.findIndex(t => t.id === currentTrack.id);
+          set({ tracks: [...originalTracks], currentTrackIndex: newIndex > -1 ? newIndex : 0, shuffle: newShuffleState });
+        }
+      },
+      toggleRepeatMode: () => {
+        const { repeatMode } = get();
+        const modes: RepeatMode[] = ['off', 'all', 'one'];
+        const nextMode = modes[(modes.indexOf(repeatMode) + 1) % modes.length];
+        set({ repeatMode: nextMode });
+      },
+      setVolume: (volume: number) => set({ volume }),
+    }),
+    {
+      name: "nodemusic-player-storage",
+      storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({ volume: state.volume, repeatMode: state.repeatMode, shuffle: state.shuffle }),
     }
-  },
-  play: () => set({ isPlaying: true }),
-  pause: () => set({ isPlaying: false }),
-  next: () => {
-    const { tracks, currentTrackIndex } = get();
-    if (tracks.length > 0) {
-      const nextIndex = (currentTrackIndex + 1) % tracks.length;
-      const { addToHistory } = useLibraryStore.getState();
-      addToHistory(tracks[nextIndex]);
-      set({ currentTrackIndex: nextIndex, isPlaying: true });
-    }
-  },
-  previous: () => {
-    const { tracks, currentTrackIndex } = get();
-    if (tracks.length > 0) {
-      const prevIndex = (currentTrackIndex - 1 + tracks.length) % tracks.length;
-      const { addToHistory } = useLibraryStore.getState();
-      addToHistory(tracks[prevIndex]);
-      set({ currentTrackIndex: prevIndex, isPlaying: true });
-    }
-  },
-}));
+  )
+);
+
 
 const useLibraryStore = create<LibraryState>()(
   persist(
