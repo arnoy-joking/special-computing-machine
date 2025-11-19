@@ -36,7 +36,6 @@ export const useUIStore = create<UIState>()(
     }),
     {
       name: "nodemusic-ui-storage",
-      storage: createJSONStorage(() => localStorage),
     }
   )
 );

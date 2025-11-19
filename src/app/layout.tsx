@@ -7,21 +7,14 @@ import PlayerFooter from '@/components/layout/player-footer';
 import { ClientProviders } from '@/components/client-providers';
 import { useUIStore } from '@/lib/store';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Menu, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import Header from '@/components/layout/header';
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { isSidebarOpen, toggleSidebar } = useUIStore();
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  const { isSidebarOpen } = useUIStore();
 
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
@@ -37,24 +30,17 @@ export default function RootLayout({
         <ClientProviders>
           <div className="relative flex h-screen w-full">
             <AppSidebar />
-            <main
-              className={cn(
-                "flex-1 overflow-y-auto overflow-x-hidden pb-24 transition-all duration-300 ease-in-out",
-                 isClient && isSidebarOpen ? "pl-64" : "pl-0"
-              )}
-            >
-               <div className="p-4 fixed top-4 left-4 z-50">
-                   <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={toggleSidebar}
-                      className={cn(isClient && isSidebarOpen && "translate-x-64 transition-transform duration-300 ease-in-out")}
-                    >
-                      {isClient && isSidebarOpen ? <X /> : <Menu />}
-                    </Button>
-                </div>
-              {children}
-            </main>
+            <div className={cn(
+                "flex flex-col flex-1 transition-all duration-300 ease-in-out",
+                isSidebarOpen ? "ml-64" : "ml-0"
+              )}>
+              <Header />
+              <main
+                className="flex-1 overflow-y-auto overflow-x-hidden pb-24"
+              >
+                {children}
+              </main>
+            </div>
             <PlayerFooter />
           </div>
           <Toaster />

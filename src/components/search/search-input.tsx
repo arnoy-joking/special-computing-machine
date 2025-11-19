@@ -10,7 +10,7 @@ export function SearchInput() {
       <Input
         type="search"
         placeholder="Search for songs, albums, artists..."
-        className="pl-10 h-12 text-lg rounded-full bg-secondary border-transparent focus:bg-card focus:border-primary focus:ring-primary"
+        className="pl-10 h-12 text-lg rounded-full bg-secondary border-transparent focus:bg-card focus:border-input focus:ring-primary"
       />
     </div>
   );
