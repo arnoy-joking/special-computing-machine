@@ -7,21 +7,47 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { usePlayerStore } from "@/lib/store";
-import { albums, tracks as allTracks } from "@/lib/mock-data";
-import type { Track } from "@/lib/types";
+import type { Album, Track } from "@/lib/types";
 import { useLibraryStore } from "@/lib/store";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
+import Loading from "./loading";
 
 export default function AlbumPage() {
   const params = useParams();
   const albumId = params.id as string;
-
-  const album = albums.find((a) => a.id === albumId);
-  const tracks = allTracks.filter((t) => t.albumId === albumId);
+  
+  const [album, setAlbum] = useState<Album | null>(null);
+  const [tracks, setTracks] = useState<Track[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const setQueue = usePlayerStore((state) => state.setQueue);
   const { likedSongs, likeSong, unlikeSong } = useLibraryStore();
+  
+  useEffect(() => {
+    if (!albumId) return;
+
+    async function fetchAlbumData() {
+      try {
+        setLoading(true);
+        const res = await fetch(`/api/album?id=${albumId}`);
+        const data = await res.json();
+        setAlbum(data.album);
+        setTracks(data.tracks);
+      } catch (error) {
+        console.error("Failed to fetch album data", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchAlbumData();
+  }, [albumId]);
+
+  if (loading) {
+    return <Loading />;
+  }
 
   if (!album) {
     return (

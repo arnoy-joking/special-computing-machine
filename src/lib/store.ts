@@ -70,21 +70,26 @@ const usePlayerStore = create<PlayerState>()(
       play: () => set({ isPlaying: true }),
       pause: () => set({ isPlaying: false }),
       next: () => {
-        const { tracks, currentTrackIndex, repeatMode } = get();
+        const { tracks, currentTrackIndex, repeatMode, shuffle } = get();
         if (tracks.length > 0) {
-          let nextIndex;
           if (repeatMode === 'one') {
-            nextIndex = currentTrackIndex;
-          } else if (currentTrackIndex === tracks.length - 1 && repeatMode === 'all') {
-            nextIndex = 0;
-          } else {
-            nextIndex = (currentTrackIndex + 1) % tracks.length;
-          }
-
-          if (currentTrackIndex === tracks.length -1 && repeatMode === 'off') {
-            // Do nothing, end of queue
-            set({ isPlaying: false });
+            // Replay the current track
+            const currentTrack = tracks[currentTrackIndex];
+            const { addToHistory } = useLibraryStore.getState();
+            addToHistory(currentTrack);
+            set({ isPlaying: true }); // Should restart the track, handled in component
             return;
+          }
+          
+          let nextIndex = (currentTrackIndex + 1);
+
+          if (nextIndex >= tracks.length) {
+            if (repeatMode === 'all') {
+              nextIndex = 0;
+            } else {
+              set({ isPlaying: false });
+              return;
+            }
           }
           
           const { addToHistory } = useLibraryStore.getState();
@@ -106,14 +111,10 @@ const usePlayerStore = create<PlayerState>()(
         const newShuffleState = !shuffle;
         if (newShuffleState) {
           const currentTrack = tracks[currentTrackIndex];
-          const shuffled = [...originalTracks].sort(() => Math.random() - 0.5);
-          const newIndex = shuffled.findIndex(t => t.id === currentTrack.id);
-          // Move current track to the start
-          if (newIndex > -1) {
-            shuffled.splice(newIndex, 1);
-            shuffled.unshift(currentTrack);
-          }
-          set({ tracks: shuffled, currentTrackIndex: 0, shuffle: newShuffleState });
+          const restOfTracks = originalTracks.filter(t => t.id !== currentTrack.id);
+          const shuffledRest = restOfTracks.sort(() => Math.random() - 0.5);
+          const newQueue = [currentTrack, ...shuffledRest];
+          set({ tracks: newQueue, currentTrackIndex: 0, shuffle: newShuffleState });
         } else {
           const currentTrack = tracks[currentTrackIndex];
           const newIndex = originalTracks.findIndex(t => t.id === currentTrack.id);

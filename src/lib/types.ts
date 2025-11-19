@@ -13,7 +13,7 @@ export interface Album {
   id: string;
   title: string;
   artist: string;
-  year: number;
+  year: number | null;
   artwork: string;
   artworkHint: string;
 }
