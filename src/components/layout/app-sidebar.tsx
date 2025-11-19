@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Library, Mic2, Music, Search } from "lucide-react";
+import { Home, Library, Mic2, Music, Search, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useUIStore } from "@/lib/store";
 
 const navItems = [
   { href: "/", label: "Listen Now", icon: Music },
@@ -14,12 +15,20 @@ const navItems = [
 
 export default function AppSidebar() {
   const pathname = usePathname();
+  const { isSidebarOpen, toggleSidebar } = useUIStore();
 
   return (
-    <aside className="fixed top-0 left-0 h-full w-64 bg-black/30 backdrop-blur-lg border-r border-white/10 p-6 flex flex-col z-40">
-      <div className="flex items-center gap-2 mb-10">
-        <Mic2 className="text-accent" size={32} />
-        <h1 className="text-2xl font-bold text-white">NodeMusic</h1>
+    <aside
+      className={cn(
+        "fixed top-0 left-0 h-full w-64 bg-black/30 backdrop-blur-lg border-r border-white/10 p-6 flex flex-col z-40 transition-transform duration-300 ease-in-out",
+        isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+      )}
+    >
+      <div className="flex items-center justify-between mb-10">
+        <Link href="/" className="flex items-center gap-2">
+            <Mic2 className="text-accent" size={32} />
+            <h1 className="text-2xl font-bold text-white">NodeMusic</h1>
+        </Link>
       </div>
       <nav className="flex flex-col gap-2">
         <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-2">Menu</p>

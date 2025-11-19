@@ -23,6 +23,24 @@ interface LibraryState {
   addToHistory: (track: Track) => void;
 }
 
+interface UIState {
+  isSidebarOpen: boolean;
+  toggleSidebar: () => void;
+}
+
+export const useUIStore = create<UIState>()(
+  persist(
+    (set) => ({
+      isSidebarOpen: true,
+      toggleSidebar: () => set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),
+    }),
+    {
+      name: "nodemusic-ui-storage",
+      storage: createJSONStorage(() => localStorage),
+    }
+  )
+);
+
 const usePlayerStore = create<PlayerState>()((set, get) => ({
   tracks: [],
   currentTrackIndex: -1,
