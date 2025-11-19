@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Library, Mic2, Music, Search, X } from "lucide-react";
+import { Library, Mic2, Music, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useUIStore } from "@/lib/store";
@@ -15,12 +15,12 @@ const navItems = [
 
 export default function AppSidebar() {
   const pathname = usePathname();
-  const { isSidebarOpen, toggleSidebar } = useUIStore();
+  const { isSidebarOpen } = useUIStore();
 
   return (
     <aside
       className={cn(
-        "fixed top-0 left-0 h-full w-64 bg-black/30 backdrop-blur-lg border-r border-white/10 p-6 flex flex-col z-40 transition-transform duration-300 ease-in-out",
+        "fixed top-0 left-0 h-full w-64 bg-black/30 backdrop-blur-lg border-r border-white/10 p-6 flex flex-col z-30 transition-transform duration-300 ease-in-out",
         isSidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}
     >
@@ -29,9 +29,6 @@ export default function AppSidebar() {
             <Mic2 className="text-accent" size={32} />
             <h1 className="text-2xl font-bold text-white">NodeMusic</h1>
         </Link>
-        <Button variant="ghost" size="icon" onClick={toggleSidebar} className="text-muted-foreground">
-          <X />
-        </Button>
       </div>
       <nav className="flex flex-col gap-2">
         <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-2">Menu</p>

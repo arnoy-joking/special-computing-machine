@@ -8,7 +8,7 @@ import { ClientProviders } from '@/components/client-providers';
 import { useUIStore } from '@/lib/store';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Menu } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 export default function RootLayout({
@@ -43,17 +43,16 @@ export default function RootLayout({
                  isClient && isSidebarOpen ? "pl-64" : "pl-0"
               )}
             >
-              {isClient && !isSidebarOpen && (
-                <div className="p-4 fixed top-4 left-4 z-50">
+               <div className="p-4 fixed top-4 left-4 z-50">
                    <Button
                       variant="ghost"
                       size="icon"
                       onClick={toggleSidebar}
+                      className={cn(isClient && isSidebarOpen && "translate-x-64 transition-transform duration-300 ease-in-out")}
                     >
-                      <Menu />
+                      {isClient && isSidebarOpen ? <X /> : <Menu />}
                     </Button>
                 </div>
-              )}
               {children}
             </main>
             <PlayerFooter />
