@@ -165,10 +165,4 @@ const useLibraryStore = create<LibraryState>()(
   )
 );
 
-// This is a helper to use both stores.
-export const useMusicStore = () => ({
-  ...usePlayerStore(),
-  ...useLibraryStore(),
-});
-
 export { usePlayerStore, useLibraryStore };

@@ -11,6 +11,7 @@ import { albums, tracks as allTracks } from "@/lib/mock-data";
 import type { Track } from "@/lib/types";
 import { useLibraryStore } from "@/lib/store";
 import { toast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 export default function AlbumPage() {
   const params = useParams();
