@@ -37,9 +37,10 @@ export default function Home() {
         setLoading(true);
         const res = await fetch("/api/home");
         const data = await res.json();
-        setHomeFeed(data);
+        setHomeFeed(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("Failed to fetch home feed:", error);
+        setHomeFeed([]);
       } finally {
         setLoading(false);
       }
