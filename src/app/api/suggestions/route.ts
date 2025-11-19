@@ -11,7 +11,9 @@ export async function GET(request: NextRequest) {
 
   try {
     const yt = await Innertube.create({ cache: new UniversalCache(false) });
-    const suggestions = await yt.music.getSearchSuggestions(query);
+    const suggestionResults = await yt.music.getSearchSuggestions(query);
+
+    const suggestions = suggestionResults.map(s => s.text);
 
     return NextResponse.json(suggestions);
 
