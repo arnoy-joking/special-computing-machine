@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Innertube, UniversalCache } from "youtubei.js";
+import { get } from "lodash";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -13,7 +14,9 @@ export async function GET(request: NextRequest) {
     const yt = await Innertube.create({ cache: new UniversalCache(false) });
     const suggestionResults = await yt.music.getSearchSuggestions(query);
 
-    const suggestions = suggestionResults.map(s => s.text);
+    const suggestions: string[] = get(suggestionResults, "contents[0].contents", []).map((item: any) => {
+        return get(item, 'query', '');
+    }).filter(Boolean);
 
     return NextResponse.json(suggestions);
 
