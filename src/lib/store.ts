@@ -18,7 +18,7 @@ function getRandomAPI(apiArray: string[]) {
 }
 
 function getThumbnailUrl(videoId: string, quality: 'low' | 'medium' | 'high' | 'max' = 'high'): string {
-    if (!videoId) return '';
+    if (!videoId) return 'https://placehold.co/480x360/1c1c1c/666?text=Music';
     const qualityMap = {
         low: 'default',
         medium: 'mqdefault',
@@ -103,7 +103,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   },
   
   playFromSearch: async (track) => {
-    const trackWithHighResThumb = { ...track, thumbnail: getThumbnailUrl(track.videoId) };
+    const trackWithHighResThumb = { ...track, thumbnail: getThumbnailUrl(track.videoId, 'high') };
     
     set({ currentQueue: [trackWithHighResThumb], currentIndex: -1, currentTrack: trackWithHighResThumb }); 
     get().loadTrack(0);
@@ -118,10 +118,10 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
                 trackWithHighResThumb, 
                 ...data.videos
                     .filter((v: Track) => v.videoId !== track.videoId)
-                    .map((v: Track) => ({...v, thumbnail: getThumbnailUrl(v.videoId)}))
+                    .map((v: Track) => ({...v, thumbnail: getThumbnailUrl(v.videoId, 'high')}))
             ];
             set({ currentQueue: newQueue });
-            renderQueue();
+            useUIStore.getState().setQueueOpen(true);
             data.videos.forEach((v: Track) => useLibraryStore.getState().addToQueueHistory(v, 'radio'));
         }
     } catch (e) {
@@ -136,6 +136,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     const track = currentQueue[index];
     set({ currentIndex: index, currentTrack: track, progress: 0, duration: 0, isPlaying: true });
     player.loadVideoById(track.videoId);
+    player.playVideo();
     useLibraryStore.getState().addPlay(track);
   },
 
@@ -202,7 +203,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   },
   
   setQueue: (tracks, startIndex) => {
-      const newQueue = tracks.map(t => ({...t, thumbnail: getThumbnailUrl(t.videoId)}));
+      const newQueue = tracks.map(t => ({...t, thumbnail: getThumbnailUrl(t.videoId, 'high')}));
       set({ currentQueue: newQueue, currentIndex: -1 });
       get().loadTrack(startIndex);
   },
@@ -300,7 +301,7 @@ export const useLibraryStore = create<LibraryState>()(
             } else {
               newFavorites = [{
                 ...track,
-                thumbnail: getThumbnailUrl(track.videoId),
+                thumbnail: getThumbnailUrl(track.videoId, 'high'),
                 addedAt: Date.now(),
               }, ...favorites];
             }
@@ -309,7 +310,7 @@ export const useLibraryStore = create<LibraryState>()(
       },
       addToQueueHistory: (track, source) => {
           set(state => ({
-              queueHistory: [{...track, thumbnail: getThumbnailUrl(track.videoId), addedAt: Date.now(), playedFrom: source}, ...state.queueHistory].slice(0, 200)
+              queueHistory: [{...track, thumbnail: getThumbnailUrl(track.videoId, 'high'), addedAt: Date.now(), playedFrom: source}, ...state.queueHistory].slice(0, 200)
           }))
       }
     }),
@@ -350,8 +351,4 @@ declare global {
 if (typeof window !== 'undefined' && (!window.crypto || !window.crypto.randomUUID)) {
     window.crypto = window.crypto || {};
     window.crypto.randomUUID = uuidv4;
-}
-
-function renderQueue() {
-    // This function is defined to avoid errors, but the actual rendering is done in the QueuePanel component.
 }
