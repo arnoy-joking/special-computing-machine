@@ -17,12 +17,12 @@ export default function VideoPlayer() {
     };
 
     const onStateChange = (event: { data: number }) => {
-        // This logic is now handled in the store to centralize control
-        if (event.data === YT.PlayerState.PLAYING) {
+        const playerState = event.data;
+        if (playerState === YT.PlayerState.PLAYING) {
             usePlayerStore.setState({ isPlaying: true });
-        } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.CUED) {
+        } else if (playerState === YT.PlayerState.PAUSED || playerState === YT.PlayerState.CUED) {
             usePlayerStore.setState({ isPlaying: false });
-        } else if (event.data === YT.PlayerState.ENDED) {
+        } else if (playerState === YT.PlayerState.ENDED) {
             usePlayerStore.setState({ isPlaying: false });
             nextTrack();
         }
@@ -31,7 +31,7 @@ export default function VideoPlayer() {
     useEffect(() => {
         const interval = setInterval(() => {
             const player = usePlayerStore.getState().player;
-            if (usePlayerStore.getState().isPlaying && player) {
+            if (usePlayerStore.getState().isPlaying && player && typeof player.getCurrentTime === 'function') {
                 const progress = player.getCurrentTime() || 0;
                 const duration = player.getDuration() || 0;
                 if (duration > 0) {

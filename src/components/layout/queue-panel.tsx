@@ -68,7 +68,7 @@ export default function QueuePanel() {
                                     )}
                                 </div>
                                 <Image 
-                                    src={track.thumbnail || `https://i.ytimg.com/vi/${track.videoId}/mqdefault.jpg`}
+                                    src={track.thumbnail || `https://i.ytimg.com/vi/${track.videoId}/hqdefault.jpg`}
                                     width={48} height={48} 
                                     alt={track.title}
                                     className="w-12 h-12 rounded-md bg-[#333] object-cover flex-shrink-0"

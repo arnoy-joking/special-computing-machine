@@ -9,6 +9,7 @@ import { useUIStore } from '@/lib/store';
 import Header from '@/components/layout/header';
 import VideoPlayer from '@/components/player/video-player';
 import QueuePanel from '@/components/layout/queue-panel';
+import Template from './template';
 
 export default function RootLayout({
   children,
@@ -35,7 +36,7 @@ export default function RootLayout({
             <main className="flex-1 flex flex-col bg-[#030303] overflow-hidden">
               <Header />
               <section id="content-section" className="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-8">
-                {children}
+                <Template>{children}</Template>
               </section>
             </main>
             <QueuePanel />

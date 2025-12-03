@@ -30,7 +30,6 @@ export default function Header() {
     setSuggestions([]);
   };
   
-  // Close suggestions when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
@@ -45,7 +44,7 @@ export default function Header() {
     if (debouncedSearchQuery.trim()) {
       fetch(`/api/suggestions?q=${debouncedSearchQuery.trim()}`)
         .then((res) => res.json())
-        .then((data) => setSuggestions(data.slice(1, 7))); // remove the query itself, limit to 6
+        .then((data) => setSuggestions(data.slice(1, 7)));
     } else {
       setSuggestions([]);
     }

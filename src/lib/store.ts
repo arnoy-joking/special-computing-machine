@@ -74,8 +74,6 @@ interface UIState {
   setQueueOpen: (isOpen: boolean) => void;
   isVideoPlayerOpen: boolean;
   setVideoPlayerOpen: (isOpen: boolean) => void;
-  currentView: string;
-  setCurrentView: (view: string) => void;
   viewMode: 'grid' | 'list';
   setViewMode: (mode: 'grid' | 'list') => void;
 }
@@ -103,9 +101,9 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   },
   
   playFromSearch: async (track) => {
-    const trackWithHighResThumb = { ...track, thumbnail: getThumbnailUrl(track.videoId, 'high') };
+    const trackWithHighResThumb = { ...track, thumbnail: getThumbnailUrl(track.videoId, 'high'), artist: track.channel || track.artist };
     
-    set({ currentQueue: [trackWithHighResThumb], currentIndex: -1, currentTrack: trackWithHighResThumb }); 
+    set({ currentQueue: [trackWithHighResThumb], currentIndex: 0, currentTrack: trackWithHighResThumb });
     get().loadTrack(0);
     useLibraryStore.getState().addToQueueHistory(trackWithHighResThumb, 'search');
 
@@ -118,7 +116,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
                 trackWithHighResThumb, 
                 ...data.videos
                     .filter((v: Track) => v.videoId !== track.videoId)
-                    .map((v: Track) => ({...v, thumbnail: getThumbnailUrl(v.videoId, 'high')}))
+                    .map((v: Track) => ({...v, thumbnail: getThumbnailUrl(v.videoId, 'high'), artist: v.channel || v.artist}))
             ];
             set({ currentQueue: newQueue });
             useUIStore.getState().setQueueOpen(true);
@@ -159,7 +157,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     if (repeatMode === 'one') {
         get().seek(0);
         get().togglePlay();
-        get().togglePlay();
+        setTimeout(() => get().togglePlay(), 100);
         return;
     }
 
@@ -168,7 +166,6 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
         if (repeatMode === 'all') {
             nextIndex = 0;
         } else {
-            // Stop playing if at the end of the queue and repeat is off
             set({ isPlaying: false });
             return;
         }
@@ -183,7 +180,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     } else {
       if (currentQueue.length === 0) return;
       let prevIndex = currentIndex - 1;
-      if (prevIndex < 0) prevIndex = currentQueue.length - 1; // Loop queue
+      if (prevIndex < 0) prevIndex = currentQueue.length - 1;
       get().loadTrack(prevIndex);
     }
   },
@@ -198,12 +195,14 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   },
 
   clearQueue: () => {
-      get().player?.stopVideo();
-      set({ currentQueue: [], currentIndex: -1, currentTrack: null, isPlaying: false, progress: 0, duration: 0 });
+      if (confirm('Clear entire queue? This will stop playback.')) {
+        get().player?.stopVideo();
+        set({ currentQueue: [], currentIndex: -1, currentTrack: null, isPlaying: false, progress: 0, duration: 0 });
+      }
   },
   
   setQueue: (tracks, startIndex) => {
-      const newQueue = tracks.map(t => ({...t, thumbnail: getThumbnailUrl(t.videoId, 'high')}));
+      const newQueue = tracks.map(t => ({...t, thumbnail: getThumbnailUrl(t.videoId, 'high'), artist: t.channel || t.artist}));
       set({ currentQueue: newQueue, currentIndex: -1 });
       get().loadTrack(startIndex);
   },
@@ -221,8 +220,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       }
       
       const newQueue = [currentTrack, ...remaining];
-      set({ currentQueue: newQueue });
-      get().loadTrack(0);
+      set({ currentQueue: newQueue, currentIndex: 0 });
   },
   
   removeFromQueue: (index) => {
@@ -283,7 +281,7 @@ export const useLibraryStore = create<LibraryState>()(
                 newHistory = [{
                     videoId: track.videoId,
                     title: track.title,
-                    channel: track.channel,
+                    channel: track.artist || track.channel,
                     playCount: 1,
                     lastPlayed: Date.now(),
                 }, ...history];
@@ -302,6 +300,7 @@ export const useLibraryStore = create<LibraryState>()(
               newFavorites = [{
                 ...track,
                 thumbnail: getThumbnailUrl(track.videoId, 'high'),
+                artist: track.artist || track.channel,
                 addedAt: Date.now(),
               }, ...favorites];
             }
@@ -310,7 +309,7 @@ export const useLibraryStore = create<LibraryState>()(
       },
       addToQueueHistory: (track, source) => {
           set(state => ({
-              queueHistory: [{...track, thumbnail: getThumbnailUrl(track.videoId, 'high'), addedAt: Date.now(), playedFrom: source}, ...state.queueHistory].slice(0, 200)
+              queueHistory: [{...track, thumbnail: getThumbnailUrl(track.videoId, 'high'), addedAt: Date.now(), playedFrom: source, artist: track.artist || track.channel}, ...state.queueHistory].slice(0, 200)
           }))
       }
     }),
@@ -330,25 +329,19 @@ export const useUIStore = create<UIState>()(
       setQueueOpen: (isOpen) => set({ isQueueOpen: isOpen }),
       isVideoPlayerOpen: false,
       setVideoPlayerOpen: (isOpen) => set({ isVideoPlayerOpen: isOpen }),
-      currentView: 'home',
-      setCurrentView: (view) => set({ currentView: view }),
       viewMode: 'grid',
       setViewMode: (mode) => set({ viewMode: mode }),
     }),
     {
       name: STORAGE_KEYS.VIEW_MODE,
-      partialize: (state) => ({ viewMode: state.viewMode, currentView: state.currentView }),
+      partialize: (state) => ({ viewMode: state.viewMode }),
     }
   )
 );
 
-declare global {
-    interface Crypto {
-        randomUUID: () => string;
-    }
-}
-
 if (typeof window !== 'undefined' && (!window.crypto || !window.crypto.randomUUID)) {
     window.crypto = window.crypto || {};
-    window.crypto.randomUUID = uuidv4;
+    Object.defineProperty(window.crypto, 'randomUUID', {
+        value: uuidv4,
+    });
 }

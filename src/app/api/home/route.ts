@@ -37,6 +37,7 @@ async function fetchCategory(query: string): Promise<Track[]> {
         videoId: item.videoId,
         title: item.title,
         artist: item.channel,
+        channel: item.channel,
         album: item.title,
         albumId: item.videoId,
         duration: item.duration || "0:00",

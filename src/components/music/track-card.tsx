@@ -17,7 +17,7 @@ function getThumbnailUrl(videoId: string, quality: 'low' | 'medium' | 'high' | '
 
 
 export function TrackCard({ track, onPlay }: { track: Track; onPlay: () => void }) {
-  const thumbnailUrl = track.thumbnail || getThumbnailUrl(track.videoId);
+  const thumbnailUrl = getThumbnailUrl(track.videoId, 'high');
   
   return (
     <div className="group cursor-pointer p-3 rounded-xl hover:bg-[#1a1a1a] transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl" onClick={onPlay}>
@@ -26,10 +26,11 @@ export function TrackCard({ track, onPlay }: { track: Track; onPlay: () => void 
           src={thumbnailUrl} 
           alt={track.title}
           fill
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
           className="w-full h-full object-cover"
           onError={(e) => { e.currentTarget.src = 'https://placehold.co/300x300/1c1c1c/666?text=No+Image' }}
         />
-        {track.duration && (
+        {track.duration && !track.duration.includes('m') && !track.duration.includes('h') && (
           <div className="absolute bottom-2 right-2 bg-black/80 px-2 py-0.5 rounded text-xs font-medium">{track.duration}</div>
         )}
         <div className="absolute inset-0 bg-black/50 hidden group-hover:flex items-center justify-center transition-all">
@@ -39,7 +40,7 @@ export function TrackCard({ track, onPlay }: { track: Track; onPlay: () => void 
         </div>
       </div>
       <h4 className="font-semibold text-sm truncate text-white mb-1">{track.title}</h4>
-      <p className="text-xs text-gray-400 truncate">{track.channel}</p>
+      <p className="text-xs text-gray-400 truncate">{track.artist || track.channel}</p>
     </div>
   );
 }

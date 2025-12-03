@@ -1,31 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Compass, Home, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/lib/store";
+import { useEffect } from "react";
 
 const navItems = [
-  { href: "/", label: "Home", icon: Home, view: 'home' },
-  { href: "/explore", label: "Explore", icon: Compass, view: 'explore' },
-  { href: "/library", label: "Favorites", icon: Heart, view: 'favorites' },
+  { href: "/", label: "Home", icon: Home },
+  { href: "/explore", label: "Explore", icon: Compass },
+  { href: "/library", label: "Favorites", icon: Heart },
 ];
 
 export default function AppSidebar() {
-  const { isSidebarOpen, setSidebarOpen, currentView, setCurrentView } = useUIStore();
+  const { isSidebarOpen, setSidebarOpen } = useUIStore();
+  const pathname = usePathname();
   const router = useRouter();
 
-  const handleNav = (e: React.MouseEvent, view: string, href: string) => {
-    e.preventDefault();
-    setCurrentView(view);
-    if(view === 'home') router.push('/');
-    else if(view === 'favorites') router.push('/library');
-    else if(view === 'explore') {
-        // For now, explore can just redirect to home or a placeholder
-        router.push('/');
-    }
-
+  const handleNav = (href: string) => {
+    router.push(href);
     if (window.innerWidth < 640) {
       setSidebarOpen(false);
     }
@@ -52,12 +46,18 @@ export default function AppSidebar() {
         </div>
         <nav className="space-y-1">
           {navItems.map((item) => {
-            const isActive = currentView === item.view;
+             // Special case for explore, redirect to home
+            const href = item.href === '/explore' ? '/' : item.href;
+            const isActive = pathname === href;
+
             return (
               <a
-                href={item.href}
+                href={href}
                 key={item.label}
-                onClick={(e) => handleNav(e, item.view, item.href)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleNav(href);
+                }}
                 className={cn(
                     "nav-item flex items-center space-x-4 p-3 rounded-lg text-gray-400 hover:bg-[#212121] transition-all",
                     isActive && "active bg-[#212121] text-white font-semibold"

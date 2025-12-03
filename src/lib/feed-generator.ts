@@ -24,7 +24,7 @@ export const feedGenerator = {
         album: play.title,
         albumId: play.videoId,
         duration: '',
-        thumbnail: getThumbnailUrl(play.videoId),
+        thumbnail: getThumbnailUrl(play.videoId, 'high'),
         source: 'played',
         score: 0,
       });
@@ -40,7 +40,7 @@ export const feedGenerator = {
           album: fav.title,
           albumId: fav.videoId,
           duration: '',
-          thumbnail: getThumbnailUrl(fav.videoId),
+          thumbnail: getThumbnailUrl(fav.videoId, 'high'),
           playCount: 0,
           lastPlayed: fav.addedAt,
           source: 'favorite',
@@ -64,7 +64,7 @@ export const feedGenerator = {
         album: queueItem.title,
         albumId: queueItem.videoId,
         duration: '',
-        thumbnail: getThumbnailUrl(queueItem.videoId),
+        thumbnail: getThumbnailUrl(queueItem.videoId, 'high'),
         playCount: 0,
         lastPlayed: queueItem.addedAt,
         source: queueItem.playedFrom || 'radio',
@@ -102,7 +102,7 @@ export const feedGenerator = {
         discoveryBonus = 0.4;
       }
 
-      const channelScore = (channelEngagement[video.channel] || 0) * 0.3;
+      const channelScore = (channelEngagement[video.artist] || 0) * 0.3;
       
       let freshnessPenalty = 0;
       if (daysSince > 30) {
@@ -152,7 +152,7 @@ export const feedGenerator = {
 
       for (let i = 0; i < Math.min(remaining.length, 20); i++) {
         const video = remaining[i];
-        const channel = video.channel;
+        const channel = video.artist;
         const source = video.source || 'unknown';
 
         let diversityScore = video.score || 0;
@@ -179,11 +179,11 @@ export const feedGenerator = {
 
       if (selected) {
         result.push(selected);
-        channelCount[selected.channel] = (channelCount[selected.channel] || 0) + 1;
+        channelCount[selected.artist] = (channelCount[selected.artist] || 0) + 1;
         const sourceKey = selected.source || 'unknown';
         if (!sourceCount[sourceKey]) sourceCount[sourceKey] = 0;
         sourceCount[sourceKey]++;
-        lastChannel = selected.channel;
+        lastChannel = selected.artist;
       }
     }
 

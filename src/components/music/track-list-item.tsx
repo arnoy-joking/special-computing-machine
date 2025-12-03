@@ -25,7 +25,7 @@ function getThumbnailUrl(videoId: string, quality: 'low' | 'medium' | 'high' | '
 }
 
 export function TrackListItem({ track, onPlay, showFavoriteButton = false }: TrackListItemProps) {
-  const thumbnailUrl = track.thumbnail || getThumbnailUrl(track.videoId);
+  const thumbnailUrl = getThumbnailUrl(track.videoId, 'high');
   const { favorites, toggleFavorite } = useLibraryStore();
   const isLoved = favorites.some(f => f.videoId === track.videoId);
 
@@ -48,7 +48,7 @@ export function TrackListItem({ track, onPlay, showFavoriteButton = false }: Tra
       </div>
       <div className="flex-1 min-w-0">
         <h4 className="font-semibold text-base truncate text-white mb-1">{track.title}</h4>
-        <p className="text-sm text-gray-400 truncate">{track.channel}</p>
+        <p className="text-sm text-gray-400 truncate">{track.artist || track.channel}</p>
       </div>
       {showFavoriteButton && (
         <Button 
@@ -63,7 +63,9 @@ export function TrackListItem({ track, onPlay, showFavoriteButton = false }: Tra
             <Heart className="w-6 h-6" />
         </Button>
       )}
-      {track.duration && <div className="text-xs text-gray-500 font-medium hidden sm:block">{track.duration}</div>}
+      {track.duration && !track.duration.includes('m') && !track.duration.includes('h') && (
+        <div className="text-xs text-gray-500 font-medium hidden sm:block">{track.duration}</div>
+      )}
     </div>
   );
 }
