@@ -1,12 +1,12 @@
 "use client";
 
-import { SearchInput } from "@/components/search/search-input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useEffect, useState } from "react";
-import MusicCarousel from "@/components/music/music-carousel";
 import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { MusicCarouselSection } from "@/lib/types";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import MusicCarousel from "@/components/music/music-carousel";
+import type { MusicCarouselSection, Track } from "@/lib/types";
+import { TrackList } from "@/components/music/track-list";
 
 function SearchSkeleton() {
   return (
@@ -36,21 +36,24 @@ export default function SearchPage() {
   
   useEffect(() => {
     if (query) {
-      // setLoading(true);
-      // fetch(`/api/search?q=${query}`)
-      //   .then(res => res.json())
-      //   .then(data => {
-      //     setResults(data);
-      //     setLoading(false);
-      //   })
-      //   .catch(err => {
-      //     console.error(err);
-      //     setLoading(false);
-      //   });
+      setLoading(true);
+      fetch(`/api/search?q=${query}`)
+        .then(res => res.json())
+        .then(data => {
+          setResults(data);
+          setLoading(false);
+        })
+        .catch(err => {
+          console.error(err);
+          setLoading(false);
+        });
     } else {
       setResults([]);
     }
   }, [query]);
+
+  const songResults = results.find(r => r.title === 'Songs')?.items as Track[] || [];
+  const albumResults = results.find(r => r.title === 'Albums')?.items || [];
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -69,18 +72,23 @@ export default function SearchPage() {
             <TabsTrigger value="all">All</TabsTrigger>
             <TabsTrigger value="songs">Songs</TabsTrigger>
             <TabsTrigger value="albums">Albums</TabsTrigger>
-            <TabsTrigger value="artists">Artists</TabsTrigger>
-            <TabsTrigger value="playlists">Playlists</TabsTrigger>
           </TabsList>
           <div className="mt-6">
             <TabsContent value="all">
               <div className="space-y-8">
-                {results.map(section => (
-                  <MusicCarousel key={section.title} title={section.title} albums={section.items} />
-                ))}
+                <section>
+                    <h2 className="text-2xl font-bold mb-4">Top Result</h2>
+                    {songResults.length > 0 && <TrackList tracks={songResults.slice(0, 5)} />}
+                </section>
+                {albumResults.length > 0 && <MusicCarousel title="Albums" albums={albumResults} />}
               </div>
             </TabsContent>
-            {/* Other tabs can be implemented similarly */}
+            <TabsContent value="songs">
+                {songResults.length > 0 ? <TrackList tracks={songResults} /> : <p>No songs found.</p>}
+            </TabsContent>
+             <TabsContent value="albums">
+                {albumResults.length > 0 ? <MusicCarousel title="Albums" albums={albumResults} /> : <p>No albums found.</p>}
+            </TabsContent>
           </div>
         </Tabs>
       )}
