@@ -24,7 +24,7 @@ export default function PlayerFooter() {
   } = usePlayerStore();
   
   const { favorites, toggleFavorite } = useLibraryStore();
-  const { setVideoPlayerOpen, isQueueOpen, setQueueOpen } = useUIStore();
+  const { isVideoPlayerOpen, setVideoPlayerOpen, isQueueOpen, setQueueOpen } = useUIStore();
   
   const [isLoved, setIsLoved] = useState(false);
 
@@ -129,7 +129,7 @@ export default function PlayerFooter() {
                 <Heart className="w-7 h-7" />
             </Button>
 
-            <Button variant="ghost" onClick={() => setVideoPlayerOpen(true)} className="text-gray-400 hover:text-primary transition" title="Toggle Video" disabled={!currentTrack}>
+            <Button variant="ghost" onClick={() => setVideoPlayerOpen(!isVideoPlayerOpen)} className="text-gray-400 hover:text-primary transition" title="Toggle Video" disabled={!currentTrack}>
               <span className="text-xs font-bold border border-current px-1.5 py-0.5 rounded">VIDEO</span>
             </Button>
             <Button variant="ghost" size="icon" onClick={() => setQueueOpen(!isQueueOpen)} className={cn("text-gray-400 hover:text-white", isQueueOpen && 'text-primary bg-primary/10')} disabled={!currentTrack}>
