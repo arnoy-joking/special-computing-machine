@@ -1,6 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const SEARCH_API = 'https://raspy-sound-0966.arnoy799.workers.dev/';
+const SEARCH_APIS = [
+    'https://raspy-sound-0966.arnoy799.workers.dev/',
+    'https://wispy-wave-f6c0.arnoy799.workers.dev/',
+];
+
+function getRandomAPI(apiArray: string[]) {
+    return apiArray[Math.floor(Math.random() * apiArray.length)];
+}
+
+async function fetchWithRetry(url: string, maxRetries = 3): Promise<any> {
+    for (let i = 0; i < maxRetries; i++) {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            return await response.json();
+        } catch (error) {
+            if (i < maxRetries - 1) {
+                await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
+            } else {
+                throw error;
+            }
+        }
+    }
+}
+
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -11,23 +35,23 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // The provided API doesn't have a dedicated suggestions endpoint.
-    // We can, however, use the search endpoint and extract video titles as suggestions.
-    // This isn't perfect but works as a substitute.
-    const response = await fetch(`${SEARCH_API}?q=${encodeURIComponent(query)}`);
-    const data = await response.json();
-
+    const searchAPI = getRandomAPI(SEARCH_APIS);
+    const response = await fetchWithRetry(`${searchAPI}?q=${encodeURIComponent(query)}&suggestions=true`);
+    
+    // The API seems to return a flat array of strings for suggestions
+    if (Array.isArray(response)) {
+      return NextResponse.json(response);
+    }
+    
+    // Fallback if the structure is different
     const suggestions: string[] = [];
-    if (data.results && Array.isArray(data.results)) {
-        data.results.slice(0, 5).forEach((item: any) => {
+    if (response.results && Array.isArray(response.results)) {
+        response.results.slice(0, 5).forEach((item: any) => {
             if(item.title) {
                 suggestions.push(item.title);
             }
         });
     }
-
-    // A real suggestions API would be better, but this will work for now.
-    // Let's also add the original query as a suggestion.
     const uniqueSuggestions = [...new Set([query, ...suggestions])];
 
     return NextResponse.json(uniqueSuggestions);

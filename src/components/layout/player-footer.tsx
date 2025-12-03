@@ -3,146 +3,128 @@
 import { usePlayerStore } from "@/lib/store";
 import Image from "next/image";
 import { Button } from "../ui/button";
-import { Heart, Play, SkipBack, SkipForward, Repeat, Shuffle, Mic2, ListMusic, Laptop2, Volume2, Pause, ArrowUp } from "lucide-react";
+import { Heart, SkipBack, SkipForward, Play, Pause, List, MoreHorizontal } from "lucide-react";
 import { Slider } from "../ui/slider";
 import { cn } from "@/lib/utils";
-import { useLibraryStore } from "@/lib/store";
-import { toast } from "@/hooks/use-toast";
-import { useEffect, useState, useMemo } from "react";
+import { useLibraryStore, useUIStore } from "@/lib/store";
+import { useEffect, useState } from "react";
 import type { Track } from "@/lib/types";
-import Link from "next/link";
 
 export default function PlayerFooter() {
   const { 
-    tracks, 
-    currentTrackIndex, 
+    currentTrack,
     isPlaying, 
-    play, 
-    pause, 
-    next, 
-    previous,
-    shuffle,
-    toggleShuffle,
-    repeatMode,
-    toggleRepeatMode
+    togglePlay, 
+    nextTrack, 
+    prevTrack,
+    progress,
+    duration,
+    seek
   } = usePlayerStore();
-  const { likedSongs, likeSong, unlikeSong } = useLibraryStore();
-  const [progress, setProgress] = useState(0);
-
-  const currentTrack = useMemo(() => {
-    return tracks[currentTrackIndex] as Track | undefined;
-  }, [tracks, currentTrackIndex]);
-
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isPlaying) {
-      interval = setInterval(() => {
-        setProgress(p => {
-            const duration = currentTrack ? (parseInt(currentTrack.duration.split(':')[0]) * 60 + parseInt(currentTrack.duration.split(':')[1])) : 180;
-            const newProgress = p + (100 / duration);
-            if (newProgress >= 100) {
-                next();
-                return 0;
-            }
-            return newProgress;
-        });
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [isPlaying, next, currentTrack]);
-
-  useEffect(() => {
-    setProgress(0);
-  }, [currentTrackIndex]);
-
-
-  if (!currentTrack) {
-    return null;
-  }
   
-  const handleLike = () => {
-    if (likedSongs[currentTrack.id]) {
-      unlikeSong(currentTrack.id);
-      toast({ title: "Removed from your library" });
-    } else {
-      likeSong(currentTrack);
-      toast({ title: "Added to your library" });
+  const { favorites, toggleFavorite } = useLibraryStore();
+  const { setQueueOpen, setVideoPlayerOpen } = useUIStore();
+  
+  const [isLoved, setIsLoved] = useState(false);
+
+  useEffect(() => {
+    if (currentTrack) {
+      setIsLoved(favorites.some(fav => fav.videoId === currentTrack.videoId));
+    }
+  }, [currentTrack, favorites]);
+
+  const handleLoveClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (currentTrack) {
+      const btn = (e.currentTarget as HTMLButtonElement);
+      btn.classList.add('heart-animate');
+      setTimeout(() => btn.classList.remove('heart-animate'), 300);
+      toggleFavorite(currentTrack);
     }
   };
 
-  const isLiked = !!likedSongs[currentTrack.id];
-  
-  const formatTime = (percentage: number) => {
-    if (!currentTrack) return "0:00";
-    const duration = parseInt(currentTrack.duration.split(':')[0]) * 60 + parseInt(currentTrack.duration.split(':')[1]);
-    const seconds = Math.floor((percentage / 100) * duration);
-    const min = Math.floor(seconds / 60);
-    const sec = seconds % 60;
-    return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const pct = x / rect.width;
+    seek(duration * pct);
   };
+  
+  const formatTime = (sec: number) => {
+      const m = Math.floor(sec / 60);
+      const s = Math.floor(sec % 60);
+      return `${m}:${s < 10 ? '0'+s : s}`;
+  };
+
+  const progressPercent = duration > 0 ? (progress / duration) * 100 : 0;
 
   return (
-    <footer className="fixed bottom-0 left-0 right-0 h-24 bg-black/50 backdrop-blur-lg border-t border-white/10 z-50 flex items-center px-6">
-      <div className="w-64 flex items-center gap-4">
-        <Link href="/now-playing" className="flex items-center gap-4 group cursor-pointer">
-          {currentTrack.artwork && 
-            <div className="relative">
-              <Image src={currentTrack.artwork} alt={currentTrack.title} width={56} height={56} className="rounded-md" data-ai-hint={currentTrack.artworkHint}/>
-               <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <ArrowUp className="text-white"/>
-              </div>
-            </div>
-          }
-          <div>
-            <p className="font-semibold text-white truncate group-hover:underline">{currentTrack.title}</p>
-            <p className="text-sm text-muted-foreground truncate">{currentTrack.artist}</p>
+    <footer id="player-bar" className="fixed bottom-0 left-0 w-full bg-[#212121] border-t border-[#333] z-40 h-16 sm:h-20">
+      <div className="block sm:hidden absolute top-[-2px] left-0 w-full h-[2px] bg-gray-600 cursor-pointer" onClick={handleProgressClick}>
+        <div className="h-full bg-primary" style={{ width: `${progressPercent}%` }}></div>
+      </div>
+      <div className="flex items-center justify-between h-full px-2 sm:px-4">
+        {/* Left Side */}
+        <div className="flex items-center flex-1 min-w-0 mr-2">
+           <button onClick={prevTrack} className="sm:hidden text-gray-300 p-2 mr-1 disabled:opacity-30" disabled={!currentTrack}><SkipBack className="w-6 h-6" /></button>
+          <Image 
+            src={currentTrack?.thumbnail || 'https://placehold.co/48x48/333/666?text=Music'} 
+            alt={currentTrack?.title || 'No song playing'}
+            width={48} 
+            height={48}
+            className="w-10 h-10 sm:w-12 sm:h-12 rounded bg-gray-800 object-cover flex-shrink-0"
+          />
+          <div className="ml-3 overflow-hidden flex-1">
+            <p className="text-sm sm:text-base font-medium truncate text-white">{currentTrack?.title || 'Ready to play'}</p>
+            <p className="text-xs sm:text-sm text-gray-400 truncate">{currentTrack?.channel || 'Select a song'}</p>
           </div>
-        </Link>
-        <Button variant="ghost" size="icon" onClick={handleLike}>
-            <Heart className={cn("h-5 w-5", isLiked ? "text-primary fill-current" : "text-muted-foreground")} />
-        </Button>
-      </div>
-
-      <div className="flex-1 flex flex-col items-center justify-center gap-2">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" className="hover:text-white" onClick={toggleShuffle}>
-            <Shuffle size={18} className={cn(shuffle ? "text-primary" : "text-muted-foreground")} />
-          </Button>
-          <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-white" onClick={previous}>
-            <SkipBack size={20} />
-          </Button>
-          <Button variant="default" className="bg-white text-black rounded-full h-10 w-10 p-0 hover:bg-gray-200" onClick={() => isPlaying ? pause() : play()}>
-            {isPlaying ? <Pause className="h-6 w-6 fill-current" /> : <Play className="h-6 w-6 fill-current ml-1" />}
-          </Button>
-          <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-white" onClick={next}>
-            <SkipForward size={20} />
-          </Button>
-          <Button variant="ghost" size="icon" className="hover:text-white" onClick={toggleRepeatMode}>
-            <Repeat size={18} className={cn(repeatMode !== 'off' ? "text-primary" : "text-primary")} />
+          <Button variant="ghost" size="icon" onClick={handleLoveClick} className={cn("heart-btn hidden sm:block ml-2 text-gray-400 hover:text-primary", isLoved && "loved text-primary")} disabled={!currentTrack}>
+              <Heart className="w-6 h-6" />
           </Button>
         </div>
-        <div className="w-full max-w-xl flex items-center gap-2">
-          <span className="text-xs text-muted-foreground">{formatTime(progress)}</span>
-          <Slider value={[progress]} max={100} step={1} className="w-full" onValueChange={(val) => setProgress(val[0])} />
-          <span className="text-xs text-muted-foreground">{currentTrack.duration}</span>
-        </div>
-      </div>
 
-      <div className="w-64 flex items-center justify-end gap-2">
-        <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-white">
-            <Mic2 size={18} />
-        </Button>
-        <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-white">
-            <ListMusic size={18} />
-        </Button>
-        <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-white">
-            <Laptop2 size={18} />
-        </Button>
-        <div className="flex items-center gap-2 w-32">
-            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-white">
-                <Volume2 size={18} />
+        {/* Center Controls (Desktop) */}
+        <div className="hidden sm:flex flex-col items-center flex-1 max-w-xl">
+          <div className="flex items-center space-x-6 mb-1">
+             <Button variant="ghost" size="icon" onClick={prevTrack} className="text-gray-400 hover:text-white disabled:opacity-30" disabled={!currentTrack}>
+                <SkipBack className="w-6 h-6" />
+             </Button>
+             <Button onClick={togglePlay} className="bg-white text-black rounded-full p-2 w-12 h-12 hover:scale-105 transition transform" disabled={!currentTrack}>
+                {isPlaying ? <Pause className="w-8 h-8"/> : <Play className="w-8 h-8 pl-1"/>}
+             </Button>
+             <Button variant="ghost" size="icon" onClick={nextTrack} className="text-gray-400 hover:text-white disabled:opacity-30" disabled={!currentTrack}>
+                <SkipForward className="w-6 h-6" />
+             </Button>
+          </div>
+          <div className="w-full flex items-center space-x-2 text-xs text-gray-400">
+            <span>{formatTime(progress)}</span>
+            <div onClick={handleProgressClick} className="relative flex-1 h-1 bg-gray-600 rounded cursor-pointer group">
+              <div className="absolute h-full bg-primary rounded" style={{width: `${progressPercent}%`}}></div>
+              <div className="absolute h-3 w-3 bg-white rounded-full -top-1 opacity-0 group-hover:opacity-100 transition-opacity" style={{left: `${progressPercent}%`}}></div>
+            </div>
+            <span>{formatTime(duration)}</span>
+          </div>
+        </div>
+
+        {/* Right Side & Mobile Controls */}
+        <div className="flex items-center justify-end space-x-2 sm:space-x-4 flex-1 sm:flex-none">
+            <Button onClick={togglePlay} className="sm:hidden p-2 text-white" disabled={!currentTrack}>
+              {isPlaying ? <Pause className="w-8 h-8" /> : <Play className="w-8 h-8" />}
             </Button>
-            <Slider defaultValue={[50]} max={100} step={1} />
+            <Button onClick={nextTrack} className="sm:hidden p-2 text-gray-300" disabled={!currentTrack}>
+              <SkipForward className="w-6 h-6" />
+            </Button>
+            <Button variant="ghost" size="icon" onClick={handleLoveClick} className={cn("heart-btn sm:hidden text-gray-400 hover:text-primary", isLoved && "loved text-primary")} disabled={!currentTrack}>
+                <Heart className="w-7 h-7" />
+            </Button>
+
+            <Button variant="ghost" onClick={() => setVideoPlayerOpen(true)} className="text-gray-400 hover:text-primary transition" title="Toggle Video" disabled={!currentTrack}>
+              <span className="text-xs font-bold border border-current px-1.5 py-0.5 rounded">VIDEO</span>
+            </Button>
+            <Button variant="ghost" size="icon" onClick={() => setQueueOpen(true)} className="text-gray-400 hover:text-white" disabled={!currentTrack}>
+              <List className="w-6 h-6"/>
+            </Button>
         </div>
       </div>
     </footer>

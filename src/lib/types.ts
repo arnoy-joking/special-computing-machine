@@ -1,12 +1,20 @@
 export interface Track {
   id: string;
+  videoId: string;
   title: string;
   artist: string;
+  channel: string;
   album: string;
   albumId: string;
-  duration: string; // e.g., "3:45"
-  artwork: string;
-  artworkHint: string;
+  duration: string;
+  thumbnail: string;
+  thumbnails?: { url: string; width: number, height: number }[];
+  addedAt?: number;
+  playedFrom?: string;
+  score?: number;
+  source?: string;
+  playCount?: number;
+  lastPlayed?: number;
 }
 
 export interface Album {
@@ -20,5 +28,13 @@ export interface Album {
 
 export interface MusicCarouselSection {
   title: string;
-  items: Album[];
+  items: Track[];
+}
+
+export interface HistoryItem {
+  videoId: string;
+  title: string;
+  channel: string;
+  playCount: number;
+  lastPlayed: number;
 }

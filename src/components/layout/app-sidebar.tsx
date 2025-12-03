@@ -2,60 +2,73 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Library, Mic2, Music, Search } from "lucide-react";
+import { Compass, Home, Heart, Music } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useUIStore } from "@/lib/store";
+import { useRouter } from "next/navigation";
 
 const navItems = [
-  { href: "/", label: "Listen Now", icon: Music },
-  { href: "/search", label: "Search", icon: Search },
-  { href: "/library", label: "Library", icon: Library },
+  { href: "/", label: "Home", icon: Home, view: 'home' },
+  { href: "/explore", label: "Explore", icon: Compass, view: 'explore' },
+  { href: "/library", label: "Favorites", icon: Heart, view: 'favorites' },
 ];
 
 export default function AppSidebar() {
-  const pathname = usePathname();
-  const { isSidebarOpen } = useUIStore();
+  const { isSidebarOpen, setSidebarOpen, currentView, setCurrentView } = useUIStore();
+  const router = useRouter();
+
+  const handleNav = (e: React.MouseEvent, view: string, href: string) => {
+    e.preventDefault();
+    setCurrentView(view);
+    if(view === 'home') router.push('/');
+    if(view === 'favorites') router.push('/library');
+    if(view === 'explore') router.push('/explore');
+
+    if (window.innerWidth < 640) {
+      setSidebarOpen(false);
+    }
+  }
 
   return (
+    <>
+    <div id="sidebar-overlay" className={cn("fixed inset-0 bg-black/60 z-20", isSidebarOpen ? 'block sm:hidden' : 'hidden')} onClick={() => setSidebarOpen(false)}></div>
     <aside
+      id="sidebar"
       className={cn(
-        "fixed top-0 left-0 h-full w-64 bg-black/30 backdrop-blur-lg border-r border-white/10 p-6 flex flex-col z-30 transition-transform duration-300 ease-in-out",
+        "fixed sm:relative w-60 bg-[#0f0f0f] flex flex-col p-4 border-r border-[#212121] h-full z-30 transform transition-transform duration-300",
         isSidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}
     >
-      <div className="flex items-center justify-between mb-10">
-        <Link href="/" className="flex items-center gap-2">
-            <Mic2 className="text-accent" size={32} />
-            <h1 className="text-2xl font-bold text-white">NodeMusic</h1>
+      <div className="flex items-center justify-between mb-8 px-2">
+        <Link href="/" className="flex items-center space-x-2">
+            <img src="https://img.icons8.com/?size=100&id=YNioBT5SxQw3&format=png&color=000000" className="w-8 h-8" />
+            <span className="text-xl font-bold tracking-tighter">Music</span>
         </Link>
+        <button id="close-sidebar-btn" className="sm:hidden text-gray-400 hover:text-white" onClick={() => setSidebarOpen(false)}>
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
       </div>
-      <nav className="flex flex-col gap-2">
-        <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-2">Menu</p>
+      <nav className="space-y-1">
         {navItems.map((item) => {
-          const isActive = pathname === item.href;
+          const isActive = currentView === item.view;
           return (
-            <Button
+            <a
+              href={item.href}
               key={item.label}
-              variant={isActive ? "secondary" : "ghost"}
-              asChild
-              className={cn("justify-start", isActive && "text-accent-foreground bg-accent hover:bg-accent/80")}
+              onClick={(e) => handleNav(e, item.view, item.href)}
+              className={cn(
+                  "nav-item flex items-center space-x-4 p-3 rounded-lg text-gray-400 hover:bg-[#212121] transition-all",
+                  isActive && "active bg-[#212121] text-white font-semibold"
+              )}
             >
-              <Link href={item.href}>
-                <item.icon className="mr-3 h-5 w-5 text-accent" />
-                {item.label}
-              </Link>
-            </Button>
+              <item.icon className="w-6 h-6" />
+              <span>{item.label}</span>
+            </a>
           );
         })}
       </nav>
-      <div className="mt-auto">
-        <div className="bg-white/10 p-4 rounded-lg text-center">
-            <h3 className="font-bold">Upgrade to Pro</h3>
-            <p className="text-sm text-muted-foreground mt-1">Get unlimited skips and an ad-free experience.</p>
-            <Button size="sm" className="w-full mt-4 bg-accent text-accent-foreground hover:bg-accent/80">Upgrade</Button>
-        </div>
-      </div>
     </aside>
+    </>
   );
 }
