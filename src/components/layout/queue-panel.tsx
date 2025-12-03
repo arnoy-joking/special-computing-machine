@@ -68,10 +68,11 @@ export default function QueuePanel() {
                                     )}
                                 </div>
                                 <Image 
-                                    src={track.thumbnail}
+                                    src={track.thumbnail || `https://i.ytimg.com/vi/${track.videoId}/mqdefault.jpg`}
                                     width={48} height={48} 
                                     alt={track.title}
                                     className="w-12 h-12 rounded-md bg-[#333] object-cover flex-shrink-0"
+                                    onError={(e) => { e.currentTarget.src = 'https://placehold.co/48x48/1c1c1c/666?text=Music' }}
                                 />
                                 <div className="flex-1 min-w-0">
                                     <p className="text-sm font-semibold truncate">{track.title}</p>
