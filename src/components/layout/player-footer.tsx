@@ -1,14 +1,11 @@
 "use client";
 
-import { usePlayerStore } from "@/lib/store";
+import { usePlayerStore, useUIStore, useLibraryStore } from "@/lib/store";
 import Image from "next/image";
 import { Button } from "../ui/button";
-import { Heart, SkipBack, SkipForward, Play, Pause, List, MoreHorizontal } from "lucide-react";
-import { Slider } from "../ui/slider";
+import { Heart, SkipBack, SkipForward, Play, Pause, List } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useLibraryStore, useUIStore } from "@/lib/store";
 import { useEffect, useState } from "react";
-import type { Track } from "@/lib/types";
 
 export default function PlayerFooter() {
   const { 
@@ -23,7 +20,7 @@ export default function PlayerFooter() {
   } = usePlayerStore();
   
   const { favorites, toggleFavorite } = useLibraryStore();
-  const { setQueueOpen, setVideoPlayerOpen } = useUIStore();
+  const { setVideoPlayerOpen } = useUIStore();
   
   const [isLoved, setIsLoved] = useState(false);
 
@@ -37,6 +34,7 @@ export default function PlayerFooter() {
     e.stopPropagation();
     if (currentTrack) {
       const btn = (e.currentTarget as HTMLButtonElement);
+      // Simple animation trigger
       btn.classList.add('heart-animate');
       setTimeout(() => btn.classList.remove('heart-animate'), 300);
       toggleFavorite(currentTrack);
@@ -52,6 +50,7 @@ export default function PlayerFooter() {
   };
   
   const formatTime = (sec: number) => {
+      if (isNaN(sec) || sec === 0) return "0:00";
       const m = Math.floor(sec / 60);
       const s = Math.floor(sec % 60);
       return `${m}:${s < 10 ? '0'+s : s}`;
@@ -122,7 +121,7 @@ export default function PlayerFooter() {
             <Button variant="ghost" onClick={() => setVideoPlayerOpen(true)} className="text-gray-400 hover:text-primary transition" title="Toggle Video" disabled={!currentTrack}>
               <span className="text-xs font-bold border border-current px-1.5 py-0.5 rounded">VIDEO</span>
             </Button>
-            <Button variant="ghost" size="icon" onClick={() => setQueueOpen(true)} className="text-gray-400 hover:text-white" disabled={!currentTrack}>
+            <Button variant="ghost" size="icon" onClick={() => { /* Open Queue */ }} className="text-gray-400 hover:text-white" disabled={!currentTrack}>
               <List className="w-6 h-6"/>
             </Button>
         </div>

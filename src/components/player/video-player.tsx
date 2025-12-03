@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import YouTube from 'react-youtube';
 import { usePlayerStore, useUIStore } from '@/lib/store';
 import { Button } from '../ui/button';
@@ -10,33 +10,33 @@ import { cn } from '@/lib/utils';
 export default function VideoPlayer() {
     const { setPlayer, setPlayerReady, isPlaying, updateProgress, nextTrack } = usePlayerStore();
     const { isVideoPlayerOpen, setVideoPlayerOpen } = useUIStore();
-    const playerRef = useRef<any>(null);
 
     const onReady = (event: { target: any }) => {
-        playerRef.current = event.target;
         setPlayer(event.target);
         setPlayerReady(true);
     };
 
     const onStateChange = (event: { data: number }) => {
+        // This logic is now handled in the store to centralize control
         if (event.data === YT.PlayerState.PLAYING) {
-            const interval = setInterval(() => {
-                const progress = playerRef.current?.getCurrentTime() || 0;
-                const duration = playerRef.current?.getDuration() || 0;
-                updateProgress(progress, duration);
-            }, 500);
-            return () => clearInterval(interval);
+            usePlayerStore.setState({ isPlaying: true });
+        } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.CUED) {
+            usePlayerStore.setState({ isPlaying: false });
         } else if (event.data === YT.PlayerState.ENDED) {
+            usePlayerStore.setState({ isPlaying: false });
             nextTrack();
         }
     };
     
     useEffect(() => {
         const interval = setInterval(() => {
-            if (isPlaying && playerRef.current) {
-                const progress = playerRef.current.getCurrentTime();
-                const duration = playerRef.current.getDuration();
-                updateProgress(progress, duration);
+            const player = usePlayerStore.getState().player;
+            if (usePlayerStore.getState().isPlaying && player) {
+                const progress = player.getCurrentTime() || 0;
+                const duration = player.getDuration() || 0;
+                if (duration > 0) {
+                    updateProgress(progress, duration);
+                }
             }
         }, 500);
         return () => clearInterval(interval);
@@ -48,6 +48,7 @@ export default function VideoPlayer() {
             isVideoPlayerOpen ? "opacity-100 pointer-events-auto z-50" : "opacity-0 pointer-events-none -z-10"
         )}>
             <YouTube
+                divId="yt-player"
                 opts={{
                     height: '100%',
                     width: '100%',

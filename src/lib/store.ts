@@ -7,9 +7,19 @@ import { v4 as uuidv4 } from 'uuid';
 
 const STORAGE_KEYS = { HISTORY: 'music_history', FAVORITES: 'music_favorites', VIEW_MODE: 'music_view_mode' };
 
+// --- API Configuration ---
+const RADIO_APIS = [
+    'https://long-pond-4887.arnoy799.workers.dev/',
+    'https://jolly-hall-c603.arnoy799.workers.dev/',
+];
+
+function getRandomAPI(apiArray: string[]) {
+    return apiArray[Math.floor(Math.random() * apiArray.length)];
+}
+
 // --- Zustand Store Types ---
 interface PlayerState {
-  player: any; // YouTube player instance
+  player: any;
   isPlayerReady: boolean;
   isPlaying: boolean;
   currentQueue: Track[];
@@ -55,15 +65,6 @@ interface UIState {
 }
 
 // --- Player Store ---
-const RADIO_APIS = [
-    'https://long-pond-4887.arnoy799.workers.dev/',
-    'https://jolly-hall-c603.arnoy799.workers.dev/',
-];
-
-function getRandomAPI(apiArray: string[]) {
-    return apiArray[Math.floor(Math.random() * apiArray.length)];
-}
-
 export const usePlayerStore = create<PlayerState>((set, get) => ({
   player: null,
   isPlayerReady: false,
@@ -84,7 +85,8 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   },
   
   playFromSearch: async (track) => {
-    set({ currentQueue: [track], currentIndex: -1, currentTrack: track }); // Play immediately
+    // Play immediately
+    set({ currentQueue: [track], currentIndex: -1, currentTrack: track }); 
     get().loadTrack(0);
     useLibraryStore.getState().addToQueueHistory(track, 'search');
 
@@ -93,8 +95,11 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
         const res = await fetch(`${radioAPI}?videoId=${track.videoId}`);
         const data = await res.json();
         if (data.videos && data.videos.length > 0) {
-            set({ currentQueue: data.videos });
-            get().loadTrack(0); // Reload with full queue
+            // Replace the queue with the radio list, keeping the selected track at the top
+            const newQueue = [track, ...data.videos.filter((v: Track) => v.videoId !== track.videoId)];
+            set({ currentQueue: newQueue });
+            // Don't call loadTrack again, just update the queue
+            // get().loadTrack(0);
             data.videos.forEach((v: Track) => useLibraryStore.getState().addToQueueHistory(v, 'radio'));
         }
     } catch (e) {
@@ -107,7 +112,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     if (!isPlayerReady || index < 0 || index >= currentQueue.length) return;
     
     const track = currentQueue[index];
-    set({ currentIndex: index, currentTrack: track, progress: 0, duration: 0 });
+    set({ currentIndex: index, currentTrack: track, progress: 0, duration: 0, isPlaying: true });
     player.loadVideoById(track.videoId);
     useLibraryStore.getState().addPlay(track);
   },
@@ -115,24 +120,34 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   togglePlay: () => {
     const { player, isPlaying, currentTrack } = get();
     if (!player || !currentTrack) return;
-    if (isPlaying) player.pauseVideo();
-    else player.playVideo();
+    if (isPlaying) {
+        player.pauseVideo();
+        set({ isPlaying: false });
+    } else {
+        player.playVideo();
+        set({ isPlaying: true });
+    }
   },
 
   nextTrack: () => {
     const { currentQueue, currentIndex } = get();
     if (currentQueue.length === 0) return;
     let nextIndex = currentIndex + 1;
-    if (nextIndex >= currentQueue.length) nextIndex = 0;
+    if (nextIndex >= currentQueue.length) nextIndex = 0; // Loop queue
     get().loadTrack(nextIndex);
   },
 
   prevTrack: () => {
-    const { currentQueue, currentIndex } = get();
-    if (currentQueue.length === 0) return;
-    let prevIndex = currentIndex - 1;
-    if (prevIndex < 0) prevIndex = currentQueue.length - 1;
-    get().loadTrack(prevIndex);
+    const { currentQueue, currentIndex, progress } = get();
+    // If more than 3 seconds into the song, restart it. Otherwise, go to previous.
+    if (progress > 3) {
+      get().seek(0);
+    } else {
+      if (currentQueue.length === 0) return;
+      let prevIndex = currentIndex - 1;
+      if (prevIndex < 0) prevIndex = currentQueue.length - 1; // Loop queue
+      get().loadTrack(prevIndex);
+    }
   },
 
   seek: (time) => {
@@ -198,39 +213,47 @@ export const useLibraryStore = create<LibraryState>()(
       favorites: [],
       queueHistory: [],
       addPlay: (track) => {
-        const { history } = get();
-        const existing = history.find(p => p.videoId === track.videoId);
-        let newHistory;
-        if (existing) {
-          existing.playCount++;
-          existing.lastPlayed = Date.now();
-          newHistory = [...history];
-        } else {
-          newHistory = [{
-            videoId: track.videoId,
-            title: track.title,
-            channel: track.channel,
-            playCount: 1,
-            lastPlayed: Date.now(),
-          }, ...history];
-        }
-        set({ history: newHistory.slice(0, 100) });
+        set(state => {
+            const { history } = state;
+            const existingIndex = history.findIndex(p => p.videoId === track.videoId);
+            let newHistory;
+
+            if (existingIndex > -1) {
+                const existing = history[existingIndex];
+                existing.playCount++;
+                existing.lastPlayed = Date.now();
+                // Move to top
+                newHistory = [existing, ...history.slice(0, existingIndex), ...history.slice(existingIndex + 1)];
+            } else {
+                newHistory = [{
+                    videoId: track.videoId,
+                    title: track.title,
+                    channel: track.channel,
+                    playCount: 1,
+                    lastPlayed: Date.now(),
+                }, ...history];
+            }
+            return { history: newHistory.slice(0, 100) };
+        });
       },
       toggleFavorite: (track) => {
-        const { favorites } = get();
-        const index = favorites.findIndex(f => f.videoId === track.videoId);
-        let newFavorites;
-        if (index > -1) {
-          newFavorites = favorites.filter(f => f.videoId !== track.videoId);
-        } else {
-          newFavorites = [{
-            videoId: track.videoId,
-            title: track.title,
-            channel: track.channel,
-            thumbnail: track.thumbnail || `https://i.ytimg.com/vi/${track.videoId}/mqdefault.jpg`,
-          }, ...favorites];
-        }
-        set({ favorites: newFavorites });
+        set(state => {
+            const { favorites } = state;
+            const index = favorites.findIndex(f => f.videoId === track.videoId);
+            let newFavorites;
+            if (index > -1) {
+              newFavorites = favorites.filter(f => f.videoId !== track.videoId);
+            } else {
+              newFavorites = [{
+                videoId: track.videoId,
+                title: track.title,
+                channel: track.channel,
+                thumbnail: track.thumbnail || `https://i.ytimg.com/vi/${track.videoId}/mqdefault.jpg`,
+                addedAt: Date.now(),
+              }, ...favorites];
+            }
+            return { favorites: newFavorites };
+        });
       },
       addToQueueHistory: (track, source) => {
           set(state => ({
@@ -268,11 +291,13 @@ export const useUIStore = create<UIState>()(
 
 // Add this to your store file to handle UUID generation if needed, or install a library
 declare global {
-    interface crypto {
+    interface Crypto {
         randomUUID: () => string;
     }
 }
 
-if (typeof window !== 'undefined' && !window.crypto.randomUUID) {
+if (typeof window !== 'undefined' && (!window.crypto || !window.crypto.randomUUID)) {
+    // A simple fallback for browsers that don't have crypto.randomUUID
+    window.crypto = window.crypto || {};
     window.crypto.randomUUID = uuidv4;
 }

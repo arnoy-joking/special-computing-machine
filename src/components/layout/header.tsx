@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Search, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useUIStore } from "@/lib/store";
 import { useRouter } from "next/navigation";
 import { useDebounce } from "use-debounce";
-import Link from "next/link";
 
 export default function Header() {
   const { setSidebarOpen } = useUIStore();
@@ -30,12 +29,23 @@ export default function Header() {
     router.push(`/search?q=${suggestion}`);
     setSuggestions([]);
   };
+  
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+        setSuggestions([]);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [searchContainerRef]);
 
   useEffect(() => {
     if (debouncedSearchQuery.trim()) {
       fetch(`/api/suggestions?q=${debouncedSearchQuery.trim()}`)
         .then((res) => res.json())
-        .then((data) => setSuggestions(data.slice(1))); // remove the query itself
+        .then((data) => setSuggestions(data.slice(1, 7))); // remove the query itself, limit to 6
     } else {
       setSuggestions([]);
     }
@@ -62,6 +72,7 @@ export default function Header() {
               className="w-full bg-[#212121] text-white rounded-full py-2.5 pl-11 pr-4 focus:outline-none focus:ring-2 focus:ring-red-500/50 placeholder-gray-500 transition"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              autoComplete="off"
             />
           </form>
           <Search className="w-5 h-5 text-gray-500 absolute left-4 top-1/2 -translate-y-1/2" />
@@ -71,7 +82,7 @@ export default function Header() {
                 {suggestions.map((suggestion, index) => (
                   <li
                     key={index}
-                    className="px-4 py-2 cursor-pointer hover:bg-[#333]"
+                    className="px-4 py-2 cursor-pointer hover:bg-[#333] text-sm"
                     onClick={() => handleSuggestionClick(suggestion)}
                   >
                     {suggestion}
