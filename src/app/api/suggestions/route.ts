@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Innertube, UniversalCache } from "youtubei.js";
-import { get } from "lodash";
+
+const SEARCH_API = 'https://raspy-sound-0966.arnoy799.workers.dev/';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -11,14 +11,26 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const yt = await Innertube.create({ cache: new UniversalCache(false) });
-    const suggestionResults = await yt.music.getSearchSuggestions(query);
+    // The provided API doesn't have a dedicated suggestions endpoint.
+    // We can, however, use the search endpoint and extract video titles as suggestions.
+    // This isn't perfect but works as a substitute.
+    const response = await fetch(`${SEARCH_API}?q=${encodeURIComponent(query)}`);
+    const data = await response.json();
 
-    const suggestions: string[] = get(suggestionResults, "contents[0].contents", []).map((item: any) => {
-        return get(item, 'query', '');
-    }).filter(Boolean);
+    const suggestions: string[] = [];
+    if (data.results && Array.isArray(data.results)) {
+        data.results.slice(0, 5).forEach((item: any) => {
+            if(item.title) {
+                suggestions.push(item.title);
+            }
+        });
+    }
 
-    return NextResponse.json(suggestions);
+    // A real suggestions API would be better, but this will work for now.
+    // Let's also add the original query as a suggestion.
+    const uniqueSuggestions = [...new Set([query, ...suggestions])];
+
+    return NextResponse.json(uniqueSuggestions);
 
   } catch (error: any) {
     console.error("Error fetching search suggestions:", error.message);

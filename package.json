@@ -44,7 +44,6 @@
     "firebase": "^11.9.1",
     "framer-motion": "^11.2.10",
     "genkit": "^1.20.0",
-    "lodash": "^4.17.21",
     "lucide-react": "^0.475.0",
     "next": "15.3.3",
     "patch-package": "^8.0.0",
@@ -56,12 +55,10 @@
     "tailwind-merge": "^3.0.1",
     "tailwindcss-animate": "^1.0.7",
     "use-debounce": "^10.0.1",
-    "youtubei.js": "^9.0.0",
     "zod": "^3.24.2",
     "zustand": "^4.5.2"
   },
   "devDependencies": {
-    "@types/lodash": "^4.17.6",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

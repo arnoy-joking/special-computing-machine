@@ -1,49 +1,73 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Innertube, UniversalCache } from "youtubei.js";
 
-function formatDuration(seconds: number): string {
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = seconds % 60;
-  return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-}
+const SEARCH_API = 'https://raspy-sound-0966.arnoy799.workers.dev/';
 
+// The provided API does not have a direct way to get an album by ID.
+// As a workaround, we will fetch the song by its ID (videoId) to get its details
+// and then search for the artist to get related tracks to simulate an album view.
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
 
   if (!id) {
-    return NextResponse.json({ error: "Album ID is required" }, { status: 400 });
+    return NextResponse.json({ error: "Album/Track ID is required" }, { status: 400 });
   }
 
   try {
-    const yt = await Innertube.create({ cache: new UniversalCache(false) });
-    const albumData = await yt.music.getAlbum(id);
+    // Step 1: Fetch the primary track details using its ID.
+    const searchByIdResponse = await fetch(`${SEARCH_API}?q=${encodeURIComponent(id)}`);
+    const searchByIdData = await searchByIdResponse.json();
     
-    if (!albumData) {
-        return NextResponse.json({ error: "Album not found" }, { status: 404 });
+    const primaryTrack = searchByIdData.results?.find((item: any) => item.videoId === id);
+
+    if (!primaryTrack) {
+        return NextResponse.json({ error: "Track not found" }, { status: 404 });
     }
 
+    const artistName = primaryTrack.channel;
+    const albumTitle = primaryTrack.title; // Using track title as a pseudo-album title
+
+    // Step 2: Search by the artist to get more tracks for the "album".
+    const searchByArtistResponse = await fetch(`${SEARCH_API}?q=${encodeURIComponent(artistName)}`);
+    const searchByArtistData = await searchByArtistResponse.json();
+
     const albumInfo = {
-      id: albumData.id,
-      title: albumData.title,
-      artist: albumData.header?.author?.name || 'Unknown Artist',
-      year: albumData.year,
-      artwork: albumData.header?.thumbnail?.contents[0].url || "https://picsum.photos/seed/1/400/400",
+      id: primaryTrack.videoId,
+      title: albumTitle,
+      artist: artistName,
+      year: new Date().getFullYear(), // API doesn't provide year
+      artwork: primaryTrack.thumbnail,
       artworkHint: 'album art'
     };
     
-    const tracks = albumData.contents.map((track: any) => ({
-      id: track.id,
+    const tracks = searchByArtistData.results.map((track: any) => ({
+      id: track.videoId,
       title: track.title,
-      artist: track.artists?.map((a: any) => a.name).join(', ') || 'Unknown Artist',
+      artist: track.channel,
       album: albumInfo.title,
       albumId: albumInfo.id,
-      duration: formatDuration(track.duration.seconds),
-      artwork: track.thumbnail?.contents[0]?.url || albumInfo.artwork,
+      duration: track.duration || "0:00",
+      artwork: track.thumbnail,
       artworkHint: 'track artwork'
     }));
 
-    return NextResponse.json({ album: albumInfo, tracks });
+    // Ensure the primary track is first in the list
+    const finalTracks = [
+        primaryTrack, 
+        ...tracks.filter((t: any) => t.id !== primaryTrack.videoId)
+    ].map(t => ({
+        id: t.videoId,
+        title: t.title,
+        artist: t.channel,
+        album: albumInfo.title,
+        albumId: albumInfo.id,
+        duration: t.duration || "0:00",
+        artwork: t.thumbnail,
+        artworkHint: 'track artwork'
+    }));
+
+
+    return NextResponse.json({ album: albumInfo, tracks: finalTracks.slice(0, 15) });
 
   } catch (error: any) {
     console.error("Error fetching album data:", error.message);
