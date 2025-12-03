@@ -3,7 +3,7 @@
 import { usePlayerStore, useUIStore, useLibraryStore } from "@/lib/store";
 import Image from "next/image";
 import { Button } from "../ui/button";
-import { Heart, SkipBack, SkipForward, Play, Pause, List } from "lucide-react";
+import { Heart, SkipBack, SkipForward, Play, Pause, List, Shuffle, Repeat, Repeat1 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
@@ -16,11 +16,15 @@ export default function PlayerFooter() {
     prevTrack,
     progress,
     duration,
-    seek
+    seek,
+    repeatMode,
+    toggleRepeatMode,
+    isShuffled,
+    toggleShuffle,
   } = usePlayerStore();
   
   const { favorites, toggleFavorite } = useLibraryStore();
-  const { setVideoPlayerOpen } = useUIStore();
+  const { setVideoPlayerOpen, isQueueOpen, setQueueOpen } = useUIStore();
   
   const [isLoved, setIsLoved] = useState(false);
 
@@ -34,7 +38,6 @@ export default function PlayerFooter() {
     e.stopPropagation();
     if (currentTrack) {
       const btn = (e.currentTarget as HTMLButtonElement);
-      // Simple animation trigger
       btn.classList.add('heart-animate');
       setTimeout(() => btn.classList.remove('heart-animate'), 300);
       toggleFavorite(currentTrack);
@@ -57,9 +60,11 @@ export default function PlayerFooter() {
   };
 
   const progressPercent = duration > 0 ? (progress / duration) * 100 : 0;
+  
+  const RepeatIcon = repeatMode === 'one' ? Repeat1 : Repeat;
 
   return (
-    <footer id="player-bar" className="fixed bottom-0 left-0 w-full bg-[#212121] border-t border-[#333] z-40 h-16 sm:h-20">
+    <footer id="player-bar" className="fixed bottom-0 left-0 w-full bg-[#121212]/80 backdrop-blur-lg border-t border-[#333] z-40 h-16 sm:h-20">
       <div className="block sm:hidden absolute top-[-2px] left-0 w-full h-[2px] bg-gray-600 cursor-pointer" onClick={handleProgressClick}>
         <div className="h-full bg-primary" style={{ width: `${progressPercent}%` }}></div>
       </div>
@@ -76,7 +81,7 @@ export default function PlayerFooter() {
           />
           <div className="ml-3 overflow-hidden flex-1">
             <p className="text-sm sm:text-base font-medium truncate text-white">{currentTrack?.title || 'Ready to play'}</p>
-            <p className="text-xs sm:text-sm text-gray-400 truncate">{currentTrack?.channel || 'Select a song'}</p>
+            <p className="text-xs sm:text-sm text-gray-400 truncate">{currentTrack?.artist || 'Select a song'}</p>
           </div>
           <Button variant="ghost" size="icon" onClick={handleLoveClick} className={cn("heart-btn hidden sm:block ml-2 text-gray-400 hover:text-primary", isLoved && "loved text-primary")} disabled={!currentTrack}>
               <Heart className="w-6 h-6" />
@@ -85,7 +90,10 @@ export default function PlayerFooter() {
 
         {/* Center Controls (Desktop) */}
         <div className="hidden sm:flex flex-col items-center flex-1 max-w-xl">
-          <div className="flex items-center space-x-6 mb-1">
+          <div className="flex items-center space-x-4 mb-1">
+             <Button variant="ghost" size="icon" onClick={toggleShuffle} className={cn("text-gray-400 hover:text-white", isShuffled && "text-primary")} disabled={!currentTrack}>
+                <Shuffle className="w-5 h-5" />
+             </Button>
              <Button variant="ghost" size="icon" onClick={prevTrack} className="text-gray-400 hover:text-white disabled:opacity-30" disabled={!currentTrack}>
                 <SkipBack className="w-6 h-6" />
              </Button>
@@ -94,6 +102,9 @@ export default function PlayerFooter() {
              </Button>
              <Button variant="ghost" size="icon" onClick={nextTrack} className="text-gray-400 hover:text-white disabled:opacity-30" disabled={!currentTrack}>
                 <SkipForward className="w-6 h-6" />
+             </Button>
+             <Button variant="ghost" size="icon" onClick={toggleRepeatMode} className={cn("text-gray-400 hover:text-white", repeatMode !== 'off' && "text-primary")} disabled={!currentTrack}>
+                <RepeatIcon className="w-5 h-5" />
              </Button>
           </div>
           <div className="w-full flex items-center space-x-2 text-xs text-gray-400">
@@ -121,7 +132,7 @@ export default function PlayerFooter() {
             <Button variant="ghost" onClick={() => setVideoPlayerOpen(true)} className="text-gray-400 hover:text-primary transition" title="Toggle Video" disabled={!currentTrack}>
               <span className="text-xs font-bold border border-current px-1.5 py-0.5 rounded">VIDEO</span>
             </Button>
-            <Button variant="ghost" size="icon" onClick={() => { /* Open Queue */ }} className="text-gray-400 hover:text-white" disabled={!currentTrack}>
+            <Button variant="ghost" size="icon" onClick={() => setQueueOpen(!isQueueOpen)} className={cn("text-gray-400 hover:text-white", isQueueOpen && 'text-primary bg-primary/10')} disabled={!currentTrack}>
               <List className="w-6 h-6"/>
             </Button>
         </div>
