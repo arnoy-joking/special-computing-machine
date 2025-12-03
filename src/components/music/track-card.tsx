@@ -4,8 +4,20 @@ import Image from "next/image";
 import { Play } from "lucide-react";
 import type { Track } from "@/lib/types";
 
+function getThumbnailUrl(videoId: string, quality: 'low' | 'medium' | 'high' | 'max' = 'high'): string {
+    if (!videoId) return 'https://placehold.co/300x300/1c1c1c/666?text=No+Image';
+    const qualityMap = {
+        low: 'default',
+        medium: 'mqdefault',
+        high: 'hqdefault',
+        max: 'sddefault'
+    };
+    return `https://i.ytimg.com/vi/${videoId}/${qualityMap[quality] || 'hqdefault'}.jpg`;
+}
+
+
 export function TrackCard({ track, onPlay }: { track: Track; onPlay: () => void }) {
-  const thumbnailUrl = track.thumbnail || `https://i.ytimg.com/vi/${track.videoId}/mqdefault.jpg`;
+  const thumbnailUrl = track.thumbnail || getThumbnailUrl(track.videoId);
   
   return (
     <div className="group cursor-pointer p-3 rounded-xl hover:bg-[#1a1a1a] transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl" onClick={onPlay}>

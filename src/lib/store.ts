@@ -17,6 +17,18 @@ function getRandomAPI(apiArray: string[]) {
     return apiArray[Math.floor(Math.random() * apiArray.length)];
 }
 
+function getThumbnailUrl(videoId: string, quality: 'low' | 'medium' | 'high' | 'max' = 'high'): string {
+    if (!videoId) return '';
+    const qualityMap = {
+        low: 'default',
+        medium: 'mqdefault',
+        high: 'hqdefault',
+        max: 'sddefault'
+    };
+    return `https://i.ytimg.com/vi/${videoId}/${qualityMap[quality] || 'hqdefault'}.jpg`;
+}
+
+
 // --- Zustand Store Types ---
 interface PlayerState {
   player: any;
@@ -27,6 +39,8 @@ interface PlayerState {
   currentTrack: Track | null;
   progress: number;
   duration: number;
+  repeatMode: 'off' | 'one' | 'all';
+  isShuffled: boolean;
   setPlayer: (player: any) => void;
   setPlayerReady: (isReady: boolean) => void;
   playFromSearch: (track: Track) => void;
@@ -40,6 +54,8 @@ interface PlayerState {
   setQueue: (tracks: Track[], startIndex: number) => void;
   shuffleQueue: () => void;
   removeFromQueue: (index: number) => void;
+  toggleRepeatMode: () => void;
+  toggleShuffle: () => void;
 }
 
 interface LibraryState {
@@ -74,6 +90,8 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   currentTrack: null,
   progress: 0,
   duration: 0,
+  repeatMode: 'off',
+  isShuffled: false,
 
   setPlayer: (player) => set({ player }),
   setPlayerReady: (isReady) => {
@@ -85,21 +103,25 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   },
   
   playFromSearch: async (track) => {
-    // Play immediately
-    set({ currentQueue: [track], currentIndex: -1, currentTrack: track }); 
+    const trackWithHighResThumb = { ...track, thumbnail: getThumbnailUrl(track.videoId) };
+    
+    set({ currentQueue: [trackWithHighResThumb], currentIndex: -1, currentTrack: trackWithHighResThumb }); 
     get().loadTrack(0);
-    useLibraryStore.getState().addToQueueHistory(track, 'search');
+    useLibraryStore.getState().addToQueueHistory(trackWithHighResThumb, 'search');
 
     try {
         const radioAPI = getRandomAPI(RADIO_APIS);
         const res = await fetch(`${radioAPI}?videoId=${track.videoId}`);
         const data = await res.json();
         if (data.videos && data.videos.length > 0) {
-            // Replace the queue with the radio list, keeping the selected track at the top
-            const newQueue = [track, ...data.videos.filter((v: Track) => v.videoId !== track.videoId)];
+            const newQueue = [
+                trackWithHighResThumb, 
+                ...data.videos
+                    .filter((v: Track) => v.videoId !== track.videoId)
+                    .map((v: Track) => ({...v, thumbnail: getThumbnailUrl(v.videoId)}))
+            ];
             set({ currentQueue: newQueue });
-            // Don't call loadTrack again, just update the queue
-            // get().loadTrack(0);
+            renderQueue();
             data.videos.forEach((v: Track) => useLibraryStore.getState().addToQueueHistory(v, 'radio'));
         }
     } catch (e) {
@@ -130,16 +152,31 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   },
 
   nextTrack: () => {
-    const { currentQueue, currentIndex } = get();
+    const { currentQueue, currentIndex, repeatMode } = get();
     if (currentQueue.length === 0) return;
+    
+    if (repeatMode === 'one') {
+        get().seek(0);
+        get().togglePlay();
+        get().togglePlay();
+        return;
+    }
+
     let nextIndex = currentIndex + 1;
-    if (nextIndex >= currentQueue.length) nextIndex = 0; // Loop queue
+    if (nextIndex >= currentQueue.length) {
+        if (repeatMode === 'all') {
+            nextIndex = 0;
+        } else {
+            // Stop playing if at the end of the queue and repeat is off
+            set({ isPlaying: false });
+            return;
+        }
+    }
     get().loadTrack(nextIndex);
   },
 
   prevTrack: () => {
     const { currentQueue, currentIndex, progress } = get();
-    // If more than 3 seconds into the song, restart it. Otherwise, go to previous.
     if (progress > 3) {
       get().seek(0);
     } else {
@@ -165,13 +202,15 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   },
   
   setQueue: (tracks, startIndex) => {
-      set({ currentQueue: tracks, currentIndex: -1 });
+      const newQueue = tracks.map(t => ({...t, thumbnail: getThumbnailUrl(t.videoId)}));
+      set({ currentQueue: newQueue, currentIndex: -1 });
       get().loadTrack(startIndex);
   },
 
   shuffleQueue: () => {
       const { currentQueue, currentIndex } = get();
       if(currentQueue.length <= 1) return;
+      
       const currentTrack = currentQueue[currentIndex];
       const remaining = currentQueue.filter((_, i) => i !== currentIndex);
       
@@ -186,7 +225,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   },
   
   removeFromQueue: (index) => {
-      const { currentQueue, currentIndex, nextTrack } = get();
+      const { currentQueue, currentIndex } = get();
       const newQueue = [...currentQueue];
       newQueue.splice(index, 1);
       
@@ -202,6 +241,22 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       } else {
           set({ currentQueue: newQueue });
       }
+  },
+
+  toggleRepeatMode: () => {
+    set(state => {
+      const modes = ['off', 'all', 'one'];
+      const currentModeIndex = modes.indexOf(state.repeatMode);
+      const nextMode = modes[(currentModeIndex + 1) % modes.length] as 'off' | 'one' | 'all';
+      return { repeatMode: nextMode };
+    });
+  },
+
+  toggleShuffle: () => {
+    set(state => ({ isShuffled: !state.isShuffled }));
+    if(get().isShuffled) {
+      get().shuffleQueue();
+    }
   }
 }));
 
@@ -222,7 +277,6 @@ export const useLibraryStore = create<LibraryState>()(
                 const existing = history[existingIndex];
                 existing.playCount++;
                 existing.lastPlayed = Date.now();
-                // Move to top
                 newHistory = [existing, ...history.slice(0, existingIndex), ...history.slice(existingIndex + 1)];
             } else {
                 newHistory = [{
@@ -245,10 +299,8 @@ export const useLibraryStore = create<LibraryState>()(
               newFavorites = favorites.filter(f => f.videoId !== track.videoId);
             } else {
               newFavorites = [{
-                videoId: track.videoId,
-                title: track.title,
-                channel: track.channel,
-                thumbnail: track.thumbnail || `https://i.ytimg.com/vi/${track.videoId}/mqdefault.jpg`,
+                ...track,
+                thumbnail: getThumbnailUrl(track.videoId),
                 addedAt: Date.now(),
               }, ...favorites];
             }
@@ -257,7 +309,7 @@ export const useLibraryStore = create<LibraryState>()(
       },
       addToQueueHistory: (track, source) => {
           set(state => ({
-              queueHistory: [{...track, addedAt: Date.now(), playedFrom: source}, ...state.queueHistory].slice(0, 200)
+              queueHistory: [{...track, thumbnail: getThumbnailUrl(track.videoId), addedAt: Date.now(), playedFrom: source}, ...state.queueHistory].slice(0, 200)
           }))
       }
     }),
@@ -289,7 +341,6 @@ export const useUIStore = create<UIState>()(
   )
 );
 
-// Add this to your store file to handle UUID generation if needed, or install a library
 declare global {
     interface Crypto {
         randomUUID: () => string;
@@ -297,7 +348,10 @@ declare global {
 }
 
 if (typeof window !== 'undefined' && (!window.crypto || !window.crypto.randomUUID)) {
-    // A simple fallback for browsers that don't have crypto.randomUUID
     window.crypto = window.crypto || {};
     window.crypto.randomUUID = uuidv4;
+}
+
+function renderQueue() {
+    // This function is defined to avoid errors, but the actual rendering is done in the QueuePanel component.
 }

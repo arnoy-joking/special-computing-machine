@@ -1,5 +1,15 @@
 import type { Track, HistoryItem } from './types';
-import { useLibraryStore } from './store';
+
+function getThumbnailUrl(videoId: string, quality: 'low' | 'medium' | 'high' | 'max' = 'high'): string {
+    if (!videoId) return '';
+    const qualityMap = {
+        low: 'default',
+        medium: 'mqdefault',
+        high: 'hqdefault',
+        max: 'sddefault'
+    };
+    return `https://i.ytimg.com/vi/${videoId}/${qualityMap[quality] || 'hqdefault'}.jpg`;
+}
 
 export const feedGenerator = {
   generate(history: HistoryItem[], favorites: Track[], queueHistory: Track[]): Track[] {
@@ -14,7 +24,7 @@ export const feedGenerator = {
         album: play.title,
         albumId: play.videoId,
         duration: '',
-        thumbnail: this.getThumbnailUrl(play.videoId),
+        thumbnail: getThumbnailUrl(play.videoId),
         source: 'played',
         score: 0,
       });
@@ -30,7 +40,7 @@ export const feedGenerator = {
           album: fav.title,
           albumId: fav.videoId,
           duration: '',
-          thumbnail: this.getThumbnailUrl(fav.videoId),
+          thumbnail: getThumbnailUrl(fav.videoId),
           playCount: 0,
           lastPlayed: fav.addedAt,
           source: 'favorite',
@@ -54,7 +64,7 @@ export const feedGenerator = {
         album: queueItem.title,
         albumId: queueItem.videoId,
         duration: '',
-        thumbnail: this.getThumbnailUrl(queueItem.videoId),
+        thumbnail: getThumbnailUrl(queueItem.videoId),
         playCount: 0,
         lastPlayed: queueItem.addedAt,
         source: queueItem.playedFrom || 'radio',
@@ -179,15 +189,4 @@ export const feedGenerator = {
 
     return result;
   },
-  
-  getThumbnailUrl(videoId: string, quality: 'low' | 'medium' | 'high' | 'max' = 'medium'): string {
-      if (!videoId) return '';
-      const qualityMap = {
-          low: 'default',
-          medium: 'mqdefault',
-          high: 'hqdefault',
-          max: 'sddefault'
-      };
-      return `https://i.ytimg.com/vi/${videoId}/${qualityMap[quality] || 'mqdefault'}.jpg`;
-  }
 };

@@ -13,8 +13,19 @@ interface TrackListItemProps {
   showFavoriteButton?: boolean;
 }
 
+function getThumbnailUrl(videoId: string, quality: 'low' | 'medium' | 'high' | 'max' = 'high'): string {
+    if (!videoId) return 'https://placehold.co/96x96/1c1c1c/666?text=No+Image';
+    const qualityMap = {
+        low: 'default',
+        medium: 'mqdefault',
+        high: 'hqdefault',
+        max: 'sddefault'
+    };
+    return `https://i.ytimg.com/vi/${videoId}/${qualityMap[quality] || 'hqdefault'}.jpg`;
+}
+
 export function TrackListItem({ track, onPlay, showFavoriteButton = false }: TrackListItemProps) {
-  const thumbnailUrl = track.thumbnail || `https://i.ytimg.com/vi/${track.videoId}/mqdefault.jpg`;
+  const thumbnailUrl = track.thumbnail || getThumbnailUrl(track.videoId);
   const { favorites, toggleFavorite } = useLibraryStore();
   const isLoved = favorites.some(f => f.videoId === track.videoId);
 
