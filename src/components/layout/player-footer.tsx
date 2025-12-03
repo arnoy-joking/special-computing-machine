@@ -3,13 +3,14 @@
 import { usePlayerStore } from "@/lib/store";
 import Image from "next/image";
 import { Button } from "../ui/button";
-import { Heart, Play, SkipBack, SkipForward, Repeat, Shuffle, Mic2, ListMusic, Laptop2, Volume2, Pause } from "lucide-react";
+import { Heart, Play, SkipBack, SkipForward, Repeat, Shuffle, Mic2, ListMusic, Laptop2, Volume2, Pause, ArrowUp } from "lucide-react";
 import { Slider } from "../ui/slider";
 import { cn } from "@/lib/utils";
 import { useLibraryStore } from "@/lib/store";
 import { toast } from "@/hooks/use-toast";
 import { useEffect, useState, useMemo } from "react";
 import type { Track } from "@/lib/types";
+import Link from "next/link";
 
 export default function PlayerFooter() {
   const { 
@@ -83,13 +84,20 @@ export default function PlayerFooter() {
   return (
     <footer className="fixed bottom-0 left-0 right-0 h-24 bg-black/50 backdrop-blur-lg border-t border-white/10 z-50 flex items-center px-6">
       <div className="w-64 flex items-center gap-4">
-        {currentTrack.artwork && 
-          <Image src={currentTrack.artwork} alt={currentTrack.title} width={56} height={56} className="rounded-md" data-ai-hint={currentTrack.artworkHint}/>
-        }
-        <div>
-          <p className="font-semibold text-white truncate">{currentTrack.title}</p>
-          <p className="text-sm text-muted-foreground truncate">{currentTrack.artist}</p>
-        </div>
+        <Link href="/now-playing" className="flex items-center gap-4 group cursor-pointer">
+          {currentTrack.artwork && 
+            <div className="relative">
+              <Image src={currentTrack.artwork} alt={currentTrack.title} width={56} height={56} className="rounded-md" data-ai-hint={currentTrack.artworkHint}/>
+               <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <ArrowUp className="text-white"/>
+              </div>
+            </div>
+          }
+          <div>
+            <p className="font-semibold text-white truncate group-hover:underline">{currentTrack.title}</p>
+            <p className="text-sm text-muted-foreground truncate">{currentTrack.artist}</p>
+          </div>
+        </Link>
         <Button variant="ghost" size="icon" onClick={handleLike}>
             <Heart className={cn("h-5 w-5", isLiked ? "text-primary fill-current" : "text-muted-foreground")} />
         </Button>
@@ -110,7 +118,7 @@ export default function PlayerFooter() {
             <SkipForward size={20} />
           </Button>
           <Button variant="ghost" size="icon" className="hover:text-white" onClick={toggleRepeatMode}>
-            <Repeat size={18} className={cn(repeatMode !== 'off' ? "text-primary" : "text-muted-foreground")} />
+            <Repeat size={18} className={cn(repeatMode !== 'off' ? "text-primary" : "text-primary")} />
           </Button>
         </div>
         <div className="w-full max-w-xl flex items-center gap-2">

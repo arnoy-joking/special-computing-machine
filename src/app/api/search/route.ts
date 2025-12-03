@@ -24,30 +24,8 @@ export async function GET(request: NextRequest) {
         artwork: track.thumbnail,
         artworkHint: 'track artwork'
     }));
-
-    const albums = data.results
-        .filter((item: any) => item.videoId) // Basic filter for potential albums
-        .map((item: any) => ({
-            id: item.videoId,
-            title: item.title,
-            artist: item.channel,
-            year: null,
-            artwork: item.thumbnail,
-            artworkHint: "album art",
-    }));
-
-    const results = [
-        {
-            title: "Songs",
-            items: tracks,
-        },
-        {
-            title: "Albums",
-            items: albums,
-        }
-    ];
-
-    return NextResponse.json(results);
+    
+    return NextResponse.json(tracks);
 
   } catch (error: any) {
     console.error("Error fetching search results:", error.message);
