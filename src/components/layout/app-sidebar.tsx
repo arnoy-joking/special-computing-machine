@@ -6,6 +6,7 @@ import { Home, Library, Music, Wind, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/lib/store";
 import { SearchInput } from "../search-input";
+import { Button } from "@/components/ui/button";
 
 const navItems = [
   { href: "/", label: "Listen Now", icon: Home },
@@ -43,7 +44,7 @@ export default function AppSidebar() {
       <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-2">Menu</p>
       <nav className="flex-1 space-y-2">
         {navItems.map((item) => {
-          const isActive = (pathname === item.href) || (item.href === "/" && pathname.startsWith('/explore'));
+          const isActive = (pathname === item.href);
           return (
             <a
               href={item.href}
@@ -61,7 +62,7 @@ export default function AppSidebar() {
         })}
       </nav>
 
-      <nav>
+      <nav className="mb-6">
          <a
             href="/settings"
             onClick={(e) => handleNav(e, "/settings")}
@@ -75,6 +76,11 @@ export default function AppSidebar() {
           </a>
       </nav>
       
+      <div className="bg-card/80 p-4 rounded-xl border border-border/50">
+        <h4 className="font-semibold text-foreground">Upgrade to Pro</h4>
+        <p className="text-sm text-muted-foreground mt-1 mb-4">Get unlimited skips and an ad-free experience.</p>
+        <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90">Upgrade</Button>
+      </div>
     </aside>
   );
 }
