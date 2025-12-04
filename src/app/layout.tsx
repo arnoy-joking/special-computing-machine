@@ -43,7 +43,7 @@ export default function RootLayout({
       <body className="bg-background text-foreground h-dvh flex flex-col font-sans overflow-x-hidden">
         <ClientProviders>
           <VideoPlayer />
-          <div className="flex flex-1 overflow-hidden">
+          <div className="flex flex-1 overflow-hidden relative">
              {isSidebarOpen && <div onClick={toggleSidebar} className="sm:hidden fixed inset-0 bg-black/60 z-20" />}
             <AppSidebar />
             <div className="flex-1 flex flex-col overflow-hidden pb-20">
@@ -54,9 +54,7 @@ export default function RootLayout({
                 </section>
               </main>
             </div>
-             <div className={cn("hidden md:block transition-all duration-300", isQueueOpen ? 'w-full md:w-96' : 'w-0')}>
-              <QueuePanel />
-            </div>
+            <QueuePanel />
           </div>
           <PlayerFooter />
           <Toaster />

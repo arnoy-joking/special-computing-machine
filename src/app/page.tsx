@@ -5,7 +5,7 @@ import { usePlayerStore, useLibraryStore } from "@/lib/store";
 import { Track, HistoryItem } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { feedGenerator } from "@/lib/feed-generator";
-import { MusicCarouselSection } from "@/components/music/music-carousel";
+import { TrackCard } from "@/components/music/track-card";
 
 function getThumbnailUrl(videoId: string): string {
   if (!videoId) return 'https://placehold.co/192x192/1d1d1f/333?text=Music';
@@ -32,9 +32,9 @@ function HomeSkeleton() {
       {[...Array(3)].map((_, i) => (
         <div key={i}>
           <Skeleton className="h-8 w-48 mb-6" />
-          <div className="flex space-x-4 overflow-hidden">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
             {[...Array(6)].map((_, j) => (
-              <div key={j} className="w-48 shrink-0">
+              <div key={j} className="w-full shrink-0">
                 <Skeleton className="w-full aspect-square rounded-lg mb-3" />
                 <Skeleton className="h-4 w-3/4 mb-2" />
                 <Skeleton className="h-3 w-1/2" />
@@ -46,6 +46,21 @@ function HomeSkeleton() {
     </div>
   );
 }
+
+const MusicSection = ({ title, items, onPlay }: { title: string, items: Track[], onPlay: (track: Track) => void }) => {
+  if (!items || items.length === 0) return null;
+  return (
+    <section>
+      <h2 className="text-2xl font-bold tracking-tight mb-4">{title}</h2>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+        {items.map((track) => (
+          <TrackCard key={track.id} track={track} onPlay={() => onPlay(track)} />
+        ))}
+      </div>
+    </section>
+  );
+};
+
 
 export default function Home() {
   const [recommendedFeed, setRecommendedFeed] = useState<Track[]>([]);
@@ -91,17 +106,17 @@ export default function Home() {
 
       {!loading && !isFirstTime && (
         <div className="space-y-12">
-          <MusicCarouselSection
+          <MusicSection
             title="Listen Again"
             items={listenAgain}
             onPlay={playFromSearch}
           />
-          <MusicCarouselSection
+          <MusicSection
             title="Recommended"
             items={recommendedFeed}
             onPlay={playFromSearch}
           />
-           <MusicCarouselSection
+           <MusicSection
             title="Your Favourites"
             items={[...favorites].reverse()}
             onPlay={playFromSearch}
