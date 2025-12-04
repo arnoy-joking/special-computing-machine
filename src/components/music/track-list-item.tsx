@@ -42,7 +42,7 @@ export function TrackListItem({ track, onPlay, showFavoriteButton = false }: Tra
         />
         <div className="absolute inset-0 bg-black/40 hidden group-hover:flex items-center justify-center rounded-lg transition-all">
           <div className="bg-white/90 rounded-full p-2">
-            <Play className="w-6 h-6 text-black pl-0.5" />
+            <Play className="w-6 h-6 text-black pl-0.5 fill-black" />
           </div>
         </div>
       </div>
