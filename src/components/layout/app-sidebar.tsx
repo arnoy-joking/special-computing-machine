@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { Home, Search, Library, Music, Wind } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useUIStore } from "@/lib/store";
 
 const navItems = [
   { href: "/", label: "Listen Now", icon: Home },
@@ -15,24 +16,20 @@ const navItems = [
 export default function AppSidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const { isSidebarOpen } = useUIStore();
 
   const handleNav = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
-    // Special case for search, don't navigate, just activate
-    if (href === '/search') {
-      // In a real app, this might open a search overlay or focus the search input
-      // For now, we'll just navigate to a search page
-      router.push('/search');
-    } else {
-      router.push(href);
-    }
+    router.push(href);
   }
 
   return (
     <aside
       id="sidebar"
       className={cn(
-        "relative hidden sm:flex w-64 bg-[#000] flex-col p-6 border-r border-border h-full z-20 shrink-0"
+        "fixed sm:relative top-0 left-0 h-full w-64 bg-[#000] flex-col p-6 border-r border-border z-30 shrink-0 transform transition-transform duration-300 ease-in-out",
+        isSidebarOpen ? "translate-x-0" : "-translate-x-full",
+        "sm:translate-x-0 sm:flex"
       )}
     >
       <div className="flex items-center space-x-2 mb-10">

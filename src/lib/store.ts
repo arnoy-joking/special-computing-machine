@@ -5,7 +5,7 @@ import { persist } from "zustand/middleware";
 import type { Track, HistoryItem } from "./types";
 import { v4 as uuidv4 } from 'uuid';
 
-const STORAGE_KEYS = { HISTORY: 'music_history', FAVORITES: 'music_favorites', VIEW_MODE: 'music_view_mode' };
+const STORAGE_KEYS = { HISTORY: 'music_history', FAVORITES: 'music_favorites', VIEW_MODE: 'music_view_mode', UI_STATE: 'music_ui_state' };
 
 // --- API Configuration ---
 const RADIO_APIS = [
@@ -69,7 +69,7 @@ interface LibraryState {
 
 interface UIState {
   isSidebarOpen: boolean;
-  setSidebarOpen: (isOpen: boolean) => void;
+  toggleSidebar: () => void;
   isQueueOpen: boolean;
   setQueueOpen: (isOpen: boolean) => void;
   isVideoPlayerOpen: boolean;
@@ -324,7 +324,7 @@ export const useUIStore = create<UIState>()(
   persist(
     (set) => ({
       isSidebarOpen: false,
-      setSidebarOpen: (isOpen) => set({ isSidebarOpen: isOpen }),
+      toggleSidebar: () => set(state => ({ isSidebarOpen: !state.isSidebarOpen })),
       isQueueOpen: false,
       setQueueOpen: (isOpen) => set({ isQueueOpen: isOpen }),
       isVideoPlayerOpen: false,
@@ -333,8 +333,8 @@ export const useUIStore = create<UIState>()(
       setViewMode: (mode) => set({ viewMode: mode }),
     }),
     {
-      name: STORAGE_KEYS.VIEW_MODE,
-      partialize: (state) => ({ viewMode: state.viewMode }),
+      name: STORAGE_KEYS.UI_STATE,
+      partialize: (state) => ({ viewMode: state.viewMode, isSidebarOpen: state.isSidebarOpen }),
     }
   )
 );

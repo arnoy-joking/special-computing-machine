@@ -56,7 +56,7 @@ export default function SearchPage() {
   const playableTracks = tracks.filter(t => t.duration && !t.duration.includes('m') && !t.duration.includes('h'));
 
   const createViewModeToggle = () => (
-    <div className="flex bg-[#212121] rounded-lg p-1">
+    <div className="hidden sm:flex bg-[#212121] rounded-lg p-1">
       <Button
         id="view-grid-btn"
         variant={viewMode === 'grid' ? 'secondary' : 'ghost'}

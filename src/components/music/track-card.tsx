@@ -19,13 +19,13 @@ export function TrackCard({ track, onPlay }: { track: Track; onPlay: () => void 
   const thumbnailUrl = getThumbnailUrl(track.videoId, 'high');
   
   return (
-    <div className="group cursor-pointer rounded-xl hover:bg-card transition-all duration-300 w-48" onClick={onPlay}>
+    <div className="group cursor-pointer rounded-xl hover:bg-card transition-all duration-300 w-full" onClick={onPlay}>
       <div className="aspect-square bg-secondary rounded-lg mb-3 relative overflow-hidden shadow-lg">
         <Image 
           src={thumbnailUrl} 
           alt={track.title}
           fill
-          sizes="192px"
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 200px"
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
           onError={(e) => { e.currentTarget.src = 'https://placehold.co/192x192/1d1d1f/333?text=Music' }}
         />

@@ -13,7 +13,7 @@ export default function LibraryPage() {
   const { viewMode, setViewMode } = useUIStore();
 
   const createViewModeToggle = () => (
-    <div className="flex bg-[#212121] rounded-lg p-1">
+    <div className="hidden sm:flex bg-[#212121] rounded-lg p-1">
       <Button
         id="view-grid-btn"
         variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
