@@ -124,9 +124,11 @@ export default function SearchPage() {
                   ))}
                 </div>
               ) : (
-                <div id="results-list" className="space-y-2">
+                <div id="results-list" className="border-t border-border">
                   {playableTracks.map(track => (
-                    <TrackListItem key={track.videoId} track={track} onPlay={() => playFromSearch(track)} />
+                    <div key={track.videoId} className="border-b border-border">
+                      <TrackListItem track={track} onPlay={() => playFromSearch(track)} />
+                    </div>
                   ))}
                 </div>
               )

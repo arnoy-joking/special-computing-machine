@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Home, Library, Music, Wind, Settings } from "lucide-react";
+import { Home, Library, Wind, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/lib/store";
 import { SearchInput } from "../search-input";
@@ -10,6 +10,7 @@ import { SearchInput } from "../search-input";
 const navItems = [
   { href: "/", label: "Listen Now", icon: Home },
   { href: "/library", label: "Library", icon: Library },
+  { href: "/settings", label: "Settings", icon: Settings },
 ];
 
 export default function AppSidebar() {
@@ -59,20 +60,6 @@ export default function AppSidebar() {
             </a>
           );
         })}
-      </nav>
-
-      <nav className="mb-6">
-         <a
-            href="/settings"
-            onClick={(e) => handleNav(e, "/settings")}
-            className={cn(
-                "nav-item flex items-center space-x-3 p-3 rounded-lg font-medium text-muted-foreground hover:bg-secondary hover:text-foreground transition-all",
-                pathname === "/settings" && "bg-secondary text-foreground"
-            )}
-          >
-            <Settings className="w-5 h-5" />
-            <span>Settings</span>
-          </a>
       </nav>
       
     </aside>

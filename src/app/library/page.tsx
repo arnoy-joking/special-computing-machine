@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { TrackCard } from "@/components/music/track-card";
 import { TrackListItem } from "@/components/music/track-list-item";
 import Link from "next/link";
+import { Separator } from "@/components/ui/separator";
 
 export default function LibraryPage() {
   const { favorites } = useLibraryStore();
@@ -70,9 +71,11 @@ export default function LibraryPage() {
             ))}
             </div>
         ) : (
-            <div id="favorites-list" className="space-y-2">
+            <div id="favorites-list" className="border-t border-border">
             {lovedSongs.map((track) => (
-                <TrackListItem key={track.videoId} track={track} onPlay={() => playFromSearch(track)} showFavoriteButton />
+                <div key={track.videoId} className="border-b border-border">
+                  <TrackListItem track={track} onPlay={() => playFromSearch(track)} showFavoriteButton />
+                </div>
             ))}
             </div>
         )}
