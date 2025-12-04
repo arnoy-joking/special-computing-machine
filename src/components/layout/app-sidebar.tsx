@@ -2,74 +2,67 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Compass, Home, Heart } from "lucide-react";
+import { Home, Search, Library, Music, Wind } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useUIStore } from "@/lib/store";
-import { useEffect } from "react";
 
 const navItems = [
-  { href: "/", label: "Home", icon: Home },
-  { href: "/explore", label: "Explore", icon: Compass },
-  { href: "/library", label: "Favorites", icon: Heart },
+  { href: "/", label: "Listen Now", icon: Home },
+  { href: "/search", label: "Search", icon: Search },
+  { href: "/library", label: "Library", icon: Library },
 ];
 
 export default function AppSidebar() {
-  const { isSidebarOpen, setSidebarOpen } = useUIStore();
   const pathname = usePathname();
   const router = useRouter();
 
-  const handleNav = (href: string) => {
-    router.push(href);
-    if (window.innerWidth < 640) {
-      setSidebarOpen(false);
+  const handleNav = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault();
+    // Special case for search, don't navigate, just activate
+    if (href === '/search') {
+      // In a real app, this might open a search overlay or focus the search input
+      // For now, we'll just navigate to a search page
+      router.push('/search');
+    } else {
+      router.push(href);
     }
   }
 
   return (
-    <>
-      <div id="sidebar-overlay" className={cn("fixed inset-0 bg-black/60 z-20 sm:hidden", isSidebarOpen ? 'block' : 'hidden')} onClick={() => setSidebarOpen(false)}></div>
-      <aside
-        id="sidebar"
-        className={cn(
-          "fixed sm:relative w-60 bg-[#0f0f0f] flex flex-col p-4 border-r border-[#212121] h-full z-30 transform transition-transform duration-300",
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full sm:translate-x-0"
-        )}
-      >
-        <div className="flex items-center justify-between mb-8 px-2">
-          <Link href="/" className="flex items-center space-x-2">
-              <img src="https://img.icons8.com/?size=100&id=YNioBT5SxQw3&format=png&color=000000" className="w-8 h-8" alt="logo" />
-              <span className="text-xl font-bold tracking-tighter">Music</span>
-          </Link>
-          <button id="close-sidebar-btn" className="sm:hidden text-gray-400 hover:text-white" onClick={() => setSidebarOpen(false)}>
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-          </button>
-        </div>
-        <nav className="space-y-1">
-          {navItems.map((item) => {
-             // Special case for explore, redirect to home
-            const href = item.href === '/explore' ? '/' : item.href;
-            const isActive = pathname === href;
-
-            return (
-              <a
-                href={href}
-                key={item.label}
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleNav(href);
-                }}
-                className={cn(
-                    "nav-item flex items-center space-x-4 p-3 rounded-lg text-gray-400 hover:bg-[#212121] transition-all",
-                    isActive && "active bg-[#212121] text-white font-semibold"
-                )}
-              >
-                <item.icon className="w-6 h-6" />
-                <span>{item.label}</span>
-              </a>
-            );
-          })}
-        </nav>
-      </aside>
-    </>
+    <aside
+      id="sidebar"
+      className={cn(
+        "relative hidden sm:flex w-64 bg-[#000] flex-col p-6 border-r border-border h-full z-20 shrink-0"
+      )}
+    >
+      <div className="flex items-center space-x-2 mb-10">
+        <Wind className="w-8 h-8 text-primary" />
+        <span className="text-2xl font-bold tracking-tight">NodeMusic</span>
+      </div>
+      <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-3">Menu</p>
+      <nav className="space-y-2">
+        {navItems.map((item) => {
+          const isActive = (pathname === item.href) || (item.href === "/" && pathname.startsWith('/explore'));
+          return (
+            <a
+              href={item.href}
+              key={item.label}
+              onClick={(e) => handleNav(e, item.href)}
+              className={cn(
+                  "nav-item flex items-center space-x-3 p-3 rounded-lg font-medium text-muted-foreground hover:bg-secondary hover:text-foreground transition-all",
+                  isActive && "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
+              )}
+            >
+              <item.icon className="w-5 h-5" />
+              <span>{item.label}</span>
+            </a>
+          );
+        })}
+      </nav>
+      <div className="mt-auto bg-card p-4 rounded-lg">
+        <h4 className="font-semibold text-foreground">Upgrade to Pro</h4>
+        <p className="text-sm text-muted-foreground mt-1 mb-4">Get unlimited skips and an ad-free experience.</p>
+        <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90">Upgrade</Button>
+      </div>
+    </aside>
   );
 }

@@ -5,7 +5,7 @@ import { Play } from "lucide-react";
 import type { Track } from "@/lib/types";
 
 function getThumbnailUrl(videoId: string, quality: 'low' | 'medium' | 'high' | 'max' = 'high'): string {
-    if (!videoId) return 'https://placehold.co/300x300/1c1c1c/666?text=No+Image';
+    if (!videoId) return 'https://placehold.co/300x300/1d1d1f/66f0f0?text=Error';
     const qualityMap = {
         low: 'default',
         medium: 'mqdefault',
@@ -15,32 +15,28 @@ function getThumbnailUrl(videoId: string, quality: 'low' | 'medium' | 'high' | '
     return `https://i.ytimg.com/vi/${videoId}/${qualityMap[quality] || 'hqdefault'}.jpg`;
 }
 
-
 export function TrackCard({ track, onPlay }: { track: Track; onPlay: () => void }) {
   const thumbnailUrl = getThumbnailUrl(track.videoId, 'high');
   
   return (
-    <div className="group cursor-pointer p-3 rounded-xl hover:bg-[#1a1a1a] transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl" onClick={onPlay}>
-      <div className="aspect-square bg-[#1c1c1c] rounded-lg mb-3 relative overflow-hidden">
+    <div className="group cursor-pointer rounded-xl hover:bg-card transition-all duration-300 w-48" onClick={onPlay}>
+      <div className="aspect-square bg-secondary rounded-lg mb-3 relative overflow-hidden shadow-lg">
         <Image 
           src={thumbnailUrl} 
           alt={track.title}
           fill
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-          className="w-full h-full object-cover"
-          onError={(e) => { e.currentTarget.src = 'https://placehold.co/300x300/1c1c1c/666?text=No+Image' }}
+          sizes="192px"
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+          onError={(e) => { e.currentTarget.src = 'https://placehold.co/192x192/1d1d1f/333?text=Music' }}
         />
-        {track.duration && !track.duration.includes('m') && !track.duration.includes('h') && (
-          <div className="absolute bottom-2 right-2 bg-black/80 px-2 py-0.5 rounded text-xs font-medium">{track.duration}</div>
-        )}
-        <div className="absolute inset-0 bg-black/50 hidden group-hover:flex items-center justify-center transition-all">
-          <div className="bg-white/90 rounded-full p-3">
-            <Play className="w-8 h-8 text-black pl-1" />
+        <div className="absolute inset-0 bg-black/20 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
+          <div className="bg-primary/80 backdrop-blur-sm rounded-full p-3 shadow-2xl">
+            <Play className="w-8 h-8 text-primary-foreground pl-1" />
           </div>
         </div>
       </div>
-      <h4 className="font-semibold text-sm truncate text-white mb-1">{track.title}</h4>
-      <p className="text-xs text-gray-400 truncate">{track.artist || track.channel}</p>
+      <h4 className="font-semibold text-sm truncate text-foreground mb-0.5 px-1">{track.title}</h4>
+      <p className="text-xs text-muted-foreground truncate px-1">{track.artist || track.channel}</p>
     </div>
   );
 }

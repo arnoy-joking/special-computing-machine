@@ -44,7 +44,7 @@ export default function VideoPlayer() {
 
     return (
         <div id="video-wrapper" className={cn(
-            "fixed bottom-24 right-4 shadow-2xl rounded-lg overflow-hidden w-64 sm:w-80 aspect-video bg-black border border-[#333] transition-all duration-300",
+            "fixed bottom-24 right-4 shadow-2xl rounded-lg overflow-hidden w-64 sm:w-80 aspect-video bg-black border border-border transition-all duration-300",
             isVideoPlayerOpen ? "opacity-100 pointer-events-auto z-50" : "opacity-0 pointer-events-none -z-10"
         )}>
             <YouTube
