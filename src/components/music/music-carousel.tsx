@@ -22,7 +22,7 @@ export function MusicCarouselSection({ title, items, onPlay }: MusicCarouselProp
   }
 
   return (
-    <section>
+    <section className="mb-12">
       <h2 className="text-2xl font-bold tracking-tight mb-4">{title}</h2>
       <Carousel
         opts={{
@@ -33,7 +33,7 @@ export function MusicCarouselSection({ title, items, onPlay }: MusicCarouselProp
       >
         <CarouselContent className="-ml-4">
           {items.map((track, index) => (
-            <CarouselItem key={index} className="pl-4 basis-auto">
+            <CarouselItem key={index} className="pl-4 basis-1/3 sm:basis-1/4 md:basis-1/5 lg:basis-1/6 xl:basis-1/8">
               <TrackCard track={track} onPlay={() => onPlay(track)} />
             </CarouselItem>
           ))}
