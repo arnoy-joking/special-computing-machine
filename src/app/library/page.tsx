@@ -6,6 +6,7 @@ import { Track } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { TrackCard } from "@/components/music/track-card";
 import { TrackListItem } from "@/components/music/track-list-item";
+import Link from "next/link";
 
 export default function LibraryPage() {
   const { favorites } = useLibraryStore();
@@ -13,27 +14,30 @@ export default function LibraryPage() {
   const { viewMode, setViewMode } = useUIStore();
 
   const createViewModeToggle = () => (
-    <div className="hidden sm:flex bg-[#212121] rounded-lg p-1">
-      <Button
-        id="view-grid-btn"
-        variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
-        size="icon"
-        onClick={() => setViewMode('grid')}
-        className={`p-2 rounded-md transition ${viewMode === 'grid' ? 'bg-white/10 text-white' : 'text-gray-400'}`}
-        title="Grid View"
-      >
-        <Grid className="w-5 h-5" />
-      </Button>
-      <Button
-        id="view-list-btn"
-        variant={viewMode === 'list' ? 'secondary' : 'ghost'}
-        size="icon"
-        onClick={() => setViewMode('list')}
-        className={`p-2 rounded-md transition ${viewMode === 'list' ? 'bg-white/10 text-white' : 'text-gray-400'}`}
-        title="List View"
-      >
-        <List className="w-5 h-5" />
-      </Button>
+    <div className="hidden sm:flex items-center gap-2">
+       <span className="text-sm text-muted-foreground">View as:</span>
+      <div className="flex bg-card p-1 rounded-lg border">
+        <Button
+          id="view-grid-btn"
+          variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
+          size="icon"
+          onClick={() => setViewMode('grid')}
+          className="h-8 w-8"
+          title="Grid View"
+        >
+          <Grid className="w-5 h-5" />
+        </Button>
+        <Button
+          id="view-list-btn"
+          variant={viewMode === 'list' ? 'secondary' : 'ghost'}
+          size="icon"
+          onClick={() => setViewMode('list')}
+          className="h-8 w-8"
+          title="List View"
+        >
+          <List className="w-5 h-5" />
+        </Button>
+      </div>
     </div>
   );
 
@@ -53,8 +57,8 @@ export default function LibraryPage() {
     <div>
         <div className="flex items-center justify-between mb-6">
             <div>
-                <h2 className="text-2xl font-bold">Favorites</h2>
-                <p className="text-sm text-gray-400 mt-1">{lovedSongs.length} loved songs</p>
+                <h2 className="text-3xl font-bold">Favorites</h2>
+                <p className="text-sm text-muted-foreground mt-1">{lovedSongs.length} loved songs</p>
             </div>
             {createViewModeToggle()}
         </div>

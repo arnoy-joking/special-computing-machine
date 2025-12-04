@@ -11,15 +11,29 @@ import { Button } from "@/components/ui/button";
 import { Grid, List } from "lucide-react";
 
 function SearchSkeleton() {
-  return (
-    <div className="space-y-4">
-      {[...Array(10)].map((_, i) => (
-         <div key={i} className="flex items-center space-x-4 p-3">
-          <Skeleton className="h-20 w-20 rounded-lg" />
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-[250px]" />
-            <Skeleton className="h-4 w-[200px]" />
+  const { viewMode } = useUIStore();
+  if (viewMode === 'list') {
+    return (
+      <div className="space-y-4">
+        {[...Array(10)].map((_, i) => (
+           <div key={i} className="flex items-center space-x-4 p-2">
+            <Skeleton className="h-16 w-16 rounded-md" />
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-[250px]" />
+              <Skeleton className="h-4 w-[200px]" />
+            </div>
           </div>
+        ))}
+      </div>
+    )
+  }
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+      {[...Array(12)].map((_, j) => (
+        <div key={j} className="w-full shrink-0">
+          <Skeleton className="w-full aspect-square rounded-lg mb-3" />
+          <Skeleton className="h-4 w-3/4 mb-2" />
+          <Skeleton className="h-3 w-1/2" />
         </div>
       ))}
     </div>
@@ -56,27 +70,30 @@ export default function SearchPage() {
   const playableTracks = tracks.filter(t => t.duration && !t.duration.includes('m') && !t.duration.includes('h'));
 
   const createViewModeToggle = () => (
-    <div className="hidden sm:flex bg-[#212121] rounded-lg p-1">
-      <Button
-        id="view-grid-btn"
-        variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
-        size="icon"
-        onClick={() => setViewMode('grid')}
-        className={`p-2 rounded-md transition ${viewMode === 'grid' ? 'bg-white/10 text-white' : 'text-gray-400'}`}
-        title="Grid View"
-      >
-        <Grid className="w-5 h-5" />
-      </Button>
-      <Button
-        id="view-list-btn"
-        variant={viewMode === 'list' ? 'secondary' : 'ghost'}
-        size="icon"
-        onClick={() => setViewMode('list')}
-        className={`p-2 rounded-md transition ${viewMode === 'list' ? 'bg-white/10 text-white' : 'text-gray-400'}`}
-        title="List View"
-      >
-        <List className="w-5 h-5" />
-      </Button>
+    <div className="hidden sm:flex items-center gap-2">
+      <span className="text-sm text-muted-foreground">View as:</span>
+      <div className="flex bg-card p-1 rounded-lg border">
+        <Button
+          id="view-grid-btn"
+          variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
+          size="icon"
+          onClick={() => setViewMode('grid')}
+          className="h-8 w-8"
+          title="Grid View"
+        >
+          <Grid className="w-5 h-5" />
+        </Button>
+        <Button
+          id="view-list-btn"
+          variant={viewMode === 'list' ? 'secondary' : 'ghost'}
+          size="icon"
+          onClick={() => setViewMode('list')}
+          className="h-8 w-8"
+          title="List View"
+        >
+          <List className="w-5 h-5" />
+        </Button>
+      </div>
     </div>
   );
 
@@ -92,7 +109,7 @@ export default function SearchPage() {
       {query && (
          <div>
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold">Results for &quot;{query}&quot;</h2>
+              <h2 className="text-3xl font-bold">Results for &quot;{query}&quot;</h2>
               {!loading && playableTracks.length > 0 && createViewModeToggle()}
             </div>
             {loading && <SearchSkeleton />}
