@@ -9,29 +9,27 @@ import { useEffect, useState } from "react";
 import { Slider } from "@/components/ui/slider";
 
 export default function PlayerFooter() {
-  const { 
-    currentTrack,
-    isPlaying, 
-    togglePlay, 
-    nextTrack, 
-    prevTrack,
-    progress,
-    duration,
-    seek,
-    repeatMode,
-    toggleRepeatMode,
-    isShuffled,
-    toggleShuffle,
-  } = usePlayerStore();
+  const currentTrack = usePlayerStore((s) => s.currentTrack);
+  const isPlaying = usePlayerStore((s) => s.isPlaying);
+  const { togglePlay, nextTrack, prevTrack, seek, repeatMode, toggleRepeatMode, isShuffled, toggleShuffle } = usePlayerStore.getState();
+  const progress = usePlayerStore((s) => s.progress);
+  const duration = usePlayerStore((s) => s.duration);
   
-  const { favorites, toggleFavorite } = useLibraryStore();
-  const { isVideoPlayerOpen, setVideoPlayerOpen, isQueueOpen, setQueueOpen } = useUIStore();
+  const favorites = useLibraryStore((s) => s.favorites);
+  const { toggleFavorite } = useLibraryStore.getState();
+  
+  const isVideoPlayerOpen = useUIStore((s) => s.isVideoPlayerOpen);
+  const setVideoPlayerOpen = useUIStore((s) => s.setVideoPlayerOpen);
+  const isQueueOpen = useUIStore((s) => s.isQueueOpen);
+  const setQueueOpen = useUIStore((s) => s.setQueueOpen);
   
   const [isLoved, setIsLoved] = useState(false);
 
   useEffect(() => {
     if (currentTrack) {
       setIsLoved(favorites.some(fav => fav.videoId === currentTrack.videoId));
+    } else {
+      setIsLoved(false);
     }
   }, [currentTrack, favorites]);
 

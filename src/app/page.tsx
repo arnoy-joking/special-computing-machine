@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { usePlayerStore, useLibraryStore } from "@/lib/store";
 import { Track, HistoryItem } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -63,20 +63,26 @@ const MusicSection = ({ title, items, onPlay }: { title: string, items: Track[],
 
 
 export default function Home() {
-  const [recommendedFeed, setRecommendedFeed] = useState<Track[]>([]);
-  const [listenAgain, setListenAgain] = useState<Track[]>([]);
   const [loading, setLoading] = useState(true);
 
   const playFromSearch = usePlayerStore((s) => s.playFromSearch);
   const { history, favorites, queueHistory } = useLibraryStore();
 
-  useEffect(() => {
-    setLoading(true);
-    const generatedFeed = feedGenerator.generate(history, favorites, queueHistory);
-    setRecommendedFeed(generatedFeed);
-    setListenAgain(mapHistoryToTracks(history));
-    setLoading(false);
+  const recommendedFeed = useMemo(() => {
+    return feedGenerator.generate(history, favorites, queueHistory);
   }, [history, favorites, queueHistory]);
+  
+  const listenAgain = useMemo(() => {
+    return mapHistoryToTracks(history);
+  }, [history]);
+  
+  const userFavorites = useMemo(() => {
+    return [...favorites].reverse();
+  }, [favorites]);
+
+  useEffect(() => {
+    setLoading(false);
+  }, []);
   
   const isFirstTime = history.length === 0 && favorites.length === 0;
 
@@ -118,7 +124,7 @@ export default function Home() {
           />
            <MusicSection
             title="Your Favourites"
-            items={[...favorites].reverse()}
+            items={userFavorites}
             onPlay={playFromSearch}
           />
         </div>

@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/popover"
 
 export default function MobileHeader() {
-  const { toggleSidebar } = useUIStore();
+  const toggleSidebar = useUIStore((state) => state.toggleSidebar);
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery] = useDebounce(searchQuery, 300);
