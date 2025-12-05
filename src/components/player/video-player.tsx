@@ -60,6 +60,10 @@ export default function VideoPlayer() {
                         iv_load_policy: 3,
                         modestbranding: 1,
                         playsinline: 1,
+                        enablejsapi: 1,
+                        origin: typeof window !== 'undefined' ? window.location.origin : '',
+                        // @ts-expect-error - unofficial param
+                        media_session: false,
                     },
                 }}
                 onReady={onReady}
