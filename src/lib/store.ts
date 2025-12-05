@@ -69,7 +69,9 @@ interface LibraryState {
 
 interface UIState {
   isSidebarOpen: boolean;
+  isSidebarCollapsed: boolean;
   toggleSidebar: () => void;
+  toggleSidebarCollapse: () => void;
   isQueueOpen: boolean;
   setQueueOpen: (isOpen: boolean) => void;
   isVideoPlayerOpen: boolean;
@@ -324,7 +326,9 @@ export const useUIStore = create<UIState>()(
   persist(
     (set) => ({
       isSidebarOpen: false,
+      isSidebarCollapsed: false,
       toggleSidebar: () => set(state => ({ isSidebarOpen: !state.isSidebarOpen })),
+      toggleSidebarCollapse: () => set(state => ({ isSidebarCollapsed: !state.isSidebarCollapsed })),
       isQueueOpen: false,
       setQueueOpen: (isOpen) => set({ isQueueOpen: isOpen }),
       isVideoPlayerOpen: false,
@@ -334,7 +338,11 @@ export const useUIStore = create<UIState>()(
     }),
     {
       name: STORAGE_KEYS.UI_STATE,
-      partialize: (state) => ({ viewMode: state.viewMode, isSidebarOpen: state.isSidebarOpen }),
+      partialize: (state) => ({ 
+        viewMode: state.viewMode, 
+        isSidebarOpen: state.isSidebarOpen,
+        isSidebarCollapsed: state.isSidebarCollapsed,
+      }),
     }
   )
 );

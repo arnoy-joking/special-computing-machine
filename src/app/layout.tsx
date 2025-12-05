@@ -19,7 +19,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const isQueueOpen = useUIStore((state) => state.isQueueOpen);
-  const { isSidebarOpen, toggleSidebar } = useUIStore();
+  const { isSidebarOpen, toggleSidebar, isSidebarCollapsed } = useUIStore();
 
   useEffect(() => {
     if (isSidebarOpen) {
