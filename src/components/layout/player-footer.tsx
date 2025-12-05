@@ -1,3 +1,4 @@
+
 "use client";
 
 import { usePlayerStore, useUIStore, useLibraryStore } from "@/lib/store";
@@ -58,8 +59,47 @@ export default function PlayerFooter() {
   const RepeatIcon = repeatMode === 'one' ? Repeat1 : Repeat;
 
   return (
-    <footer id="player-bar" className="fixed bottom-0 left-0 w-full bg-black/80 backdrop-blur-lg border-t border-border z-40 h-20">
-      <div className="grid grid-cols-2 sm:grid-cols-3 h-full px-2 sm:px-4">
+    <footer id="player-bar" className="fixed bottom-0 left-0 w-full bg-black/80 backdrop-blur-lg border-t border-border z-40 h-[6.5rem] sm:h-20">
+       {/* Mobile View */}
+       <div className="sm:hidden h-full flex flex-col px-2 py-2">
+            <div className="flex items-center w-full">
+                {currentTrack && (
+                    <>
+                        <Image 
+                            src={currentTrack.thumbnail || 'https://placehold.co/64x64/1d1d1f/333?text=Music'} 
+                            alt={currentTrack.title}
+                            width={40} 
+                            height={40}
+                            className="w-10 h-10 rounded bg-secondary object-cover flex-shrink-0"
+                        />
+                        <div className="ml-3 overflow-hidden flex-1">
+                            <p className="text-sm font-medium truncate text-foreground">{currentTrack.title}</p>
+                            <p className="text-xs text-muted-foreground truncate">{currentTrack.artist}</p>
+                        </div>
+                        <Button variant="ghost" size="icon" onClick={handleLoveClick} className={cn("heart-btn ml-2 text-muted-foreground hover:text-primary", isLoved && "loved")} disabled={!currentTrack}>
+                            <Heart className="w-5 h-5" />
+                        </Button>
+                        <Button onClick={togglePlay} className="rounded-full p-2 w-10 h-10 ml-1" disabled={!currentTrack}>
+                            {isPlaying ? <Pause className="w-5 h-5 fill-current"/> : <Play className="w-5 h-5 fill-current pl-0.5"/>}
+                        </Button>
+                    </>
+                )}
+            </div>
+            <div className="w-full flex items-center space-x-2 text-xs text-muted-foreground mt-2">
+                <span>{formatTime(progress)}</span>
+                <Slider
+                    value={[progress]}
+                    max={duration || 1}
+                    onValueChange={handleProgressChange}
+                    className="flex-1"
+                    disabled={!currentTrack}
+                />
+                <span>{formatTime(duration)}</span>
+            </div>
+       </div>
+
+      {/* Desktop View */}
+      <div className="hidden sm:grid grid-cols-3 h-full px-4">
         {/* Left Side */}
         <div className="flex items-center flex-1 min-w-0">
           {currentTrack && (
@@ -71,11 +111,11 @@ export default function PlayerFooter() {
                 height={56}
                 className="w-14 h-14 rounded bg-secondary object-cover flex-shrink-0"
               />
-              <div className="ml-2 sm:ml-4 overflow-hidden flex-1 hidden sm:block">
+              <div className="ml-4 overflow-hidden flex-1">
                 <p className="text-sm font-medium truncate text-foreground">{currentTrack.title}</p>
                 <p className="text-xs text-muted-foreground truncate">{currentTrack.artist}</p>
               </div>
-              <Button variant="ghost" size="icon" onClick={handleLoveClick} className={cn("heart-btn ml-2 text-muted-foreground hover:text-primary hidden sm:inline-flex", isLoved && "loved")} disabled={!currentTrack}>
+              <Button variant="ghost" size="icon" onClick={handleLoveClick} className={cn("heart-btn ml-2 text-muted-foreground hover:text-primary", isLoved && "loved")} disabled={!currentTrack}>
                   <Heart className="w-5 h-5" />
               </Button>
             </>
@@ -83,9 +123,9 @@ export default function PlayerFooter() {
         </div>
 
         {/* Center Controls */}
-        <div className="flex flex-col items-center justify-center flex-1 order-first sm:order-none col-span-2 sm:col-span-1">
-          <div className="flex items-center space-x-1 sm:space-x-3 mb-1">
-             <Button variant="ghost" size="icon" onClick={toggleShuffle} className={cn("text-muted-foreground hover:text-foreground hidden sm:inline-flex", isShuffled && "text-primary")} disabled={!currentTrack}>
+        <div className="flex flex-col items-center justify-center flex-1">
+          <div className="flex items-center space-x-3 mb-1">
+             <Button variant="ghost" size="icon" onClick={toggleShuffle} className={cn("text-muted-foreground hover:text-foreground", isShuffled && "text-primary")} disabled={!currentTrack}>
                 <Shuffle className="w-5 h-5" />
              </Button>
              <Button variant="ghost" size="icon" onClick={prevTrack} className="text-muted-foreground hover:text-foreground disabled:opacity-30" disabled={!currentTrack}>
@@ -97,11 +137,11 @@ export default function PlayerFooter() {
              <Button variant="ghost" size="icon" onClick={nextTrack} className="text-muted-foreground hover:text-foreground disabled:opacity-30" disabled={!currentTrack}>
                 <SkipForward className="w-5 h-5" />
              </Button>
-             <Button variant="ghost" size="icon" onClick={toggleRepeatMode} className={cn("text-muted-foreground hover:text-foreground hidden sm:inline-flex", repeatMode !== 'off' && "text-primary")} disabled={!currentTrack}>
+             <Button variant="ghost" size="icon" onClick={toggleRepeatMode} className={cn("text-muted-foreground hover:text-foreground", repeatMode !== 'off' && "text-primary")} disabled={!currentTrack}>
                 <RepeatIcon className="w-5 h-5" />
              </Button>
           </div>
-          <div className="w-full max-w-xl flex items-center space-x-2 text-xs text-muted-foreground hidden sm:flex">
+          <div className="w-full max-w-xl flex items-center space-x-2 text-xs text-muted-foreground">
             <span>{formatTime(progress)}</span>
             <Slider
               value={[progress]}
@@ -115,14 +155,14 @@ export default function PlayerFooter() {
         </div>
 
         {/* Right Side */}
-        <div className="flex items-center justify-end space-x-1 sm:space-x-2 flex-1">
+        <div className="flex items-center justify-end space-x-2 flex-1">
             <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground hidden md:inline-flex" title="Lyrics" disabled={!currentTrack}>
               <Mic2 className="w-5 h-5" />
             </Button>
             <Button variant="ghost" size="icon" onClick={() => setQueueOpen(!isQueueOpen)} className={cn("text-muted-foreground hover:text-foreground", isQueueOpen && 'text-primary bg-primary/10')} disabled={!currentTrack} title="Queue">
               <ListMusic className="w-5 h-5"/>
             </Button>
-            <Button variant="ghost" size="icon" onClick={() => setVideoPlayerOpen(!isVideoPlayerOpen)} className={cn("text-muted-foreground hover:text-foreground hidden sm:inline-flex", isVideoPlayerOpen && "text-primary")} title="Toggle Video" disabled={!currentTrack}>
+            <Button variant="ghost" size="icon" onClick={() => setVideoPlayerOpen(!isVideoPlayerOpen)} className={cn("text-muted-foreground hover:text-foreground", isVideoPlayerOpen && "text-primary")} title="Toggle Video" disabled={!currentTrack}>
               <Laptop2 className="w-5 h-5" />
             </Button>
         </div>
@@ -130,3 +170,5 @@ export default function PlayerFooter() {
     </footer>
   );
 }
+
+    
