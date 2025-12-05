@@ -160,6 +160,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     player.playVideo();
     useLibraryStore.getState().addPlay(track);
     updateMediaSession(track);
+    if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
   },
 
   togglePlay: () => {
