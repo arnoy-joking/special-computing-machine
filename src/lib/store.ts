@@ -7,16 +7,6 @@ import { v4 as uuidv4 } from 'uuid';
 
 const STORAGE_KEYS = { HISTORY: 'music_history', FAVORITES: 'music_favorites', VIEW_MODE: 'music_view_mode', UI_STATE: 'music_ui_state' };
 
-// --- API Configuration ---
-const RADIO_APIS = [
-    'https://long-pond-4887.arnoy799.workers.dev/',
-    'https://jolly-hall-c603.arnoy799.workers.dev/',
-];
-
-function getRandomAPI(apiArray: string[]) {
-    return apiArray[Math.floor(Math.random() * apiArray.length)];
-}
-
 function getThumbnailUrl(videoId: string, quality: 'low' | 'medium' | 'high' | 'max' = 'high'): string {
     if (!videoId) return 'https://placehold.co/480x360/1c1c1c/666?text=Music';
     const qualityMap = {
@@ -110,8 +100,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     useLibraryStore.getState().addToQueueHistory(trackWithHighResThumb, 'search');
 
     try {
-        const radioAPI = getRandomAPI(RADIO_APIS);
-        const res = await fetch(`${radioAPI}?videoId=${track.videoId}`);
+        const res = await fetch(`/api/radio?videoId=${track.videoId}`);
         const data = await res.json();
         if (data.videos && data.videos.length > 0) {
             const newQueue = [
