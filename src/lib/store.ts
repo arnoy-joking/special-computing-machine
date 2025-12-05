@@ -18,6 +18,26 @@ function getThumbnailUrl(videoId: string, quality: 'low' | 'medium' | 'high' | '
     return `https://i.ytimg.com/vi/${videoId}/${qualityMap[quality] || 'hqdefault'}.jpg`;
 }
 
+function updateMediaSession(track: Track | null) {
+  if (typeof window !== 'undefined' && 'mediaSession' in navigator) {
+    if (!track) {
+      navigator.mediaSession.metadata = null;
+      navigator.mediaSession.playbackState = 'none';
+      return;
+    }
+
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: track.title,
+      artist: track.artist,
+      album: 'NodeMusic',
+      artwork: [
+        { src: getThumbnailUrl(track.videoId, 'low'), sizes: '96x96', type: 'image/jpeg' },
+        { src: getThumbnailUrl(track.videoId, 'medium'), sizes: '128x128', type: 'image/jpeg' },
+        { src: getThumbnailUrl(track.videoId, 'high'), sizes: '256x256', type: 'image/jpeg' },
+      ],
+    });
+  }
+}
 
 // --- Zustand Store Types ---
 interface PlayerState {
@@ -86,9 +106,17 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   setPlayer: (player) => set({ player }),
   setPlayerReady: (isReady) => {
     set({ isPlayerReady: isReady });
-    const { loadTrack, currentIndex } = get();
-    if (isReady && currentIndex !== -1) {
-      loadTrack(currentIndex);
+    const { loadTrack, currentIndex, nextTrack, prevTrack, togglePlay } = get();
+    if (isReady) {
+      if (currentIndex !== -1) {
+        loadTrack(currentIndex);
+      }
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.setActionHandler('play', () => togglePlay());
+        navigator.mediaSession.setActionHandler('pause', () => togglePlay());
+        navigator.mediaSession.setActionHandler('previoustrack', () => prevTrack());
+        navigator.mediaSession.setActionHandler('nexttrack', () => nextTrack());
+      }
     }
   },
   
@@ -127,6 +155,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     player.loadVideoById(track.videoId);
     player.playVideo();
     useLibraryStore.getState().addPlay(track);
+    updateMediaSession(track);
   },
 
   togglePlay: () => {
@@ -135,9 +164,11 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     if (isPlaying) {
         player.pauseVideo();
         set({ isPlaying: false });
+        if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
     } else {
         player.playVideo();
         set({ isPlaying: true });
+        if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
     }
   },
 
@@ -158,6 +189,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
             nextIndex = 0;
         } else {
             set({ isPlaying: false });
+            updateMediaSession(null);
             return;
         }
     }
@@ -189,6 +221,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       if (confirm('Clear entire queue? This will stop playback.')) {
         get().player?.stopVideo();
         set({ currentQueue: [], currentIndex: -1, currentTrack: null, isPlaying: false, progress: 0, duration: 0 });
+        updateMediaSession(null);
       }
   },
   
