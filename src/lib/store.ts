@@ -88,6 +88,8 @@ interface UIState {
   setVideoPlayerOpen: (isOpen: boolean) => void;
   viewMode: 'grid' | 'list';
   setViewMode: (mode: 'grid' | 'list') => void;
+  homeGridSize: number;
+  setHomeGridSize: (size: number) => void;
 }
 
 // --- Player Store ---
@@ -357,12 +359,15 @@ export const useUIStore = create<UIState>()(
       setVideoPlayerOpen: (isOpen) => set({ isVideoPlayerOpen: isOpen }),
       viewMode: 'grid',
       setViewMode: (mode) => set({ viewMode: mode }),
+      homeGridSize: 6,
+      setHomeGridSize: (size) => set({ homeGridSize: size }),
     }),
     {
       name: STORAGE_KEYS.UI_STATE,
       partialize: (state) => ({ 
         viewMode: state.viewMode,
         isSidebarCollapsed: state.isSidebarCollapsed,
+        homeGridSize: state.homeGridSize,
       }),
     }
   )

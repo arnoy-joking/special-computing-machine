@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { usePlayerStore, useLibraryStore } from "@/lib/store";
+import { usePlayerStore, useLibraryStore, useUIStore } from "@/lib/store";
 import { Track, HistoryItem } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { feedGenerator } from "@/lib/feed-generator";
 import { TrackCard } from "@/components/music/track-card";
+import { cn } from "@/lib/utils";
 
 function getThumbnailUrl(videoId: string): string {
   if (!videoId) return 'https://placehold.co/192x192/1d1d1f/333?text=Music';
@@ -47,12 +48,21 @@ function HomeSkeleton() {
   );
 }
 
-const MusicSection = ({ title, items, onPlay }: { title: string, items: Track[], onPlay: (track: Track) => void }) => {
+const MusicSection = ({ title, items, onPlay, gridSize }: { title: string, items: Track[], onPlay: (track: Track) => void, gridSize: number }) => {
   if (!items || items.length === 0) return null;
+  const gridClasses: Record<number, string> = {
+    3: 'grid-cols-2 sm:grid-cols-3',
+    4: 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4',
+    5: 'grid-cols-3 sm:grid-cols-4 md:grid-cols-5',
+    6: 'grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6',
+    7: 'grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7',
+    8: 'grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8',
+  };
+
   return (
     <section>
       <h2 className="text-2xl font-bold tracking-tight mb-4">{title}</h2>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+      <div className={cn("grid gap-4", gridClasses[gridSize])}>
         {items.map((track) => (
           <TrackCard key={track.id} track={track} onPlay={() => onPlay(track)} />
         ))}
@@ -67,6 +77,7 @@ export default function Home() {
 
   const playFromSearch = usePlayerStore((s) => s.playFromSearch);
   const { history, favorites, queueHistory } = useLibraryStore();
+  const { homeGridSize } = useUIStore();
 
   const recommendedFeed = useMemo(() => {
     return feedGenerator.generate(history, favorites, queueHistory);
@@ -116,16 +127,19 @@ export default function Home() {
             title="Listen Again"
             items={listenAgain}
             onPlay={playFromSearch}
+            gridSize={homeGridSize}
           />
           <MusicSection
             title="Recommended"
             items={recommendedFeed}
             onPlay={playFromSearch}
+            gridSize={homeGridSize}
           />
            <MusicSection
             title="Your Favourites"
             items={userFavorites}
             onPlay={playFromSearch}
+            gridSize={homeGridSize}
           />
         </div>
       )}
