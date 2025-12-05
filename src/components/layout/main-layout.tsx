@@ -6,10 +6,11 @@ import PlayerFooter from '@/components/layout/player-footer';
 import { ClientProviders } from '@/components/client-providers';
 import VideoPlayer from '@/components/player/video-player';
 import QueuePanel from '@/components/layout/queue-panel';
-import Template from '../../app/template';
 import { useUIStore } from '@/lib/store';
 import MobileHeader from '@/components/layout/mobile-header';
 import { useEffect } from 'react';
+import { motion } from "framer-motion";
+import { usePathname } from "next/navigation";
 
 export default function MainLayout({
   children,
@@ -18,6 +19,7 @@ export default function MainLayout({
 }>) {
   const isQueueOpen = useUIStore((state) => state.isQueueOpen);
   const { isSidebarOpen, toggleSidebar, isSidebarCollapsed } = useUIStore();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (isSidebarOpen) {
@@ -37,7 +39,15 @@ export default function MainLayout({
           <MobileHeader />
           <main className="flex-1 flex flex-col bg-background overflow-hidden">
             <section id="content-section" className="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6 lg:p-8">
-              <Template>{children}</Template>
+              <motion.div
+                key={pathname}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ ease: "easeInOut", duration: 0.3 }}
+                className="h-full"
+              >
+                {children}
+              </motion.div>
             </section>
           </main>
         </div>
