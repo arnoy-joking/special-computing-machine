@@ -35,7 +35,7 @@ export default function RootLayout({
         <title>NodeMusic</title>
         <meta name="description" content="Your daily dose of music, curated just for you." />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-        <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50,10 a40,40 0 1,0 0,80 a40,40 0 1,0 0,-80' fill='%2366f0f0'/%3E%3C/svg%3E" />
+        <link rel="icon" type="image/png" href="https://www.nicepng.com/png/full/358-3582537_best-apollo-icon-android-lollipop-png-play-music.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
