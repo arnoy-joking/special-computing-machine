@@ -21,7 +21,7 @@ export default function QueuePanel() {
             <div 
                 id="queue-panel" 
                 className={cn(
-                    "fixed top-0 right-0 h-full bg-black/95 backdrop-blur-lg border-l border-border z-50 overflow-hidden shadow-2xl flex flex-col w-[85%] md:w-96 transform transition-transform duration-300 ease-in-out",
+                    "fixed top-0 right-0 bg-black/95 backdrop-blur-lg border-l border-border z-50 overflow-hidden shadow-2xl flex flex-col w-[85%] md:w-96 transform transition-transform duration-300 ease-in-out bottom-[6.5rem] sm:bottom-20",
                     isQueueOpen ? "translate-x-0" : "translate-x-full"
                 )}
             >
