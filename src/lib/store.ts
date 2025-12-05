@@ -339,8 +339,7 @@ export const useUIStore = create<UIState>()(
     {
       name: STORAGE_KEYS.UI_STATE,
       partialize: (state) => ({ 
-        viewMode: state.viewMode, 
-        isSidebarOpen: state.isSidebarOpen,
+        viewMode: state.viewMode,
         isSidebarCollapsed: state.isSidebarCollapsed,
       }),
     }
