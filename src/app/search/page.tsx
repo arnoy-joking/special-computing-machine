@@ -1,7 +1,8 @@
+
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Track } from "@/lib/types";
 import { TrackListItem } from "@/components/music/track-list-item";
@@ -40,7 +41,7 @@ function SearchSkeleton() {
   )
 }
 
-export default function SearchPage() {
+function SearchContent() {
   const searchParams = useSearchParams();
   const query = searchParams.get('q');
   const [loading, setLoading] = useState(false);
@@ -137,4 +138,12 @@ export default function SearchPage() {
       )}
     </div>
   );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={<SearchSkeleton />}>
+      <SearchContent />
+    </Suspense>
+  )
 }
