@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { Play } from "lucide-react";
+import { Play, X } from "lucide-react";
 import type { Track } from "@/lib/types";
+import { Button } from "../ui/button";
 
 function getThumbnailUrl(videoId: string, quality: 'low' | 'medium' | 'high' | 'max' = 'high'): string {
     if (!videoId) return 'https://placehold.co/300x300/1d1d1f/66f0f0?text=Error';
@@ -15,8 +16,20 @@ function getThumbnailUrl(videoId: string, quality: 'low' | 'medium' | 'high' | '
     return `https://i.ytimg.com/vi/${videoId}/${qualityMap[quality] || 'hqdefault'}.jpg`;
 }
 
-export function TrackCard({ track, onPlay }: { track: Track; onPlay: () => void }) {
+interface TrackCardProps {
+  track: Track;
+  onPlay: () => void;
+  showDismiss?: boolean;
+  onDismiss?: () => void;
+}
+
+export function TrackCard({ track, onPlay, showDismiss = false, onDismiss }: TrackCardProps) {
   const thumbnailUrl = getThumbnailUrl(track.videoId, 'high');
+  
+  const handleDismiss = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDismiss?.();
+  };
   
   return (
     <div className="group cursor-pointer rounded-xl hover:bg-card transition-all duration-300 w-full" onClick={onPlay}>
@@ -34,6 +47,18 @@ export function TrackCard({ track, onPlay }: { track: Track; onPlay: () => void 
             <Play className="w-8 h-8 text-primary-foreground pl-1" />
           </div>
         </div>
+
+        {showDismiss && onDismiss && (
+            <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleDismiss}
+                className="absolute top-1 right-1 h-7 w-7 bg-black/50 text-muted-foreground hover:bg-black/80 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                title="Dismiss"
+            >
+                <X className="w-4 h-4" />
+            </Button>
+        )}
       </div>
       <h4 className="font-semibold text-sm truncate text-foreground mb-0.5 px-1">{track.title}</h4>
       <p className="text-xs text-muted-foreground truncate px-1">{track.artist || track.channel}</p>

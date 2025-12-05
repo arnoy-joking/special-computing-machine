@@ -72,9 +72,11 @@ interface LibraryState {
     history: HistoryItem[];
     favorites: Track[];
     queueHistory: Track[];
+    dismissed: string[];
     addPlay: (track: Track) => void;
     toggleFavorite: (track: Track) => void;
     addToQueueHistory: (track: Track, source: string) => void;
+    dismissTrack: (videoId: string) => void;
 }
 
 interface UIState {
@@ -292,6 +294,7 @@ export const useLibraryStore = create<LibraryState>()(
       history: [],
       favorites: [],
       queueHistory: [],
+      dismissed: [],
       addPlay: (track) => {
         set(state => {
             const { history } = state;
@@ -337,7 +340,12 @@ export const useLibraryStore = create<LibraryState>()(
           set(state => ({
               queueHistory: [{...track, thumbnail: getThumbnailUrl(track.videoId, 'high'), addedAt: Date.now(), playedFrom: source, artist: track.artist || track.channel}, ...state.queueHistory].slice(0, 200)
           }))
-      }
+      },
+      dismissTrack: (videoId: string) => {
+        set(state => ({
+            dismissed: [...state.dismissed, videoId]
+        }));
+      },
     }),
     {
       name: STORAGE_KEYS.HISTORY,

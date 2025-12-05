@@ -48,7 +48,7 @@ function HomeSkeleton() {
   );
 }
 
-const MusicSection = ({ title, items, onPlay, gridSize }: { title: string, items: Track[], onPlay: (track: Track) => void, gridSize: number }) => {
+const MusicSection = ({ title, items, onPlay, onDismiss, gridSize }: { title: string, items: Track[], onPlay: (track: Track) => void, onDismiss: (videoId: string) => void, gridSize: number }) => {
   if (!items || items.length === 0) return null;
   const gridClasses: Record<number, string> = {
     3: 'grid-cols-2 sm:grid-cols-3',
@@ -64,7 +64,13 @@ const MusicSection = ({ title, items, onPlay, gridSize }: { title: string, items
       <h2 className="text-2xl font-bold tracking-tight mb-4">{title}</h2>
       <div className={cn("grid gap-4", gridClasses[gridSize])}>
         {items.map((track) => (
-          <TrackCard key={track.id} track={track} onPlay={() => onPlay(track)} />
+          <TrackCard 
+            key={track.id} 
+            track={track} 
+            onPlay={() => onPlay(track)} 
+            showDismiss
+            onDismiss={() => onDismiss(track.videoId)}
+          />
         ))}
       </div>
     </section>
@@ -76,20 +82,20 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   const playFromSearch = usePlayerStore((s) => s.playFromSearch);
-  const { history, favorites, queueHistory } = useLibraryStore();
+  const { history, favorites, queueHistory, dismissed, dismissTrack } = useLibraryStore();
   const { homeGridSize } = useUIStore();
 
   const recommendedFeed = useMemo(() => {
-    return feedGenerator.generate(history, favorites, queueHistory);
-  }, [history, favorites, queueHistory]);
+    return feedGenerator.generate(history, favorites, queueHistory, dismissed);
+  }, [history, favorites, queueHistory, dismissed]);
   
   const listenAgain = useMemo(() => {
-    return mapHistoryToTracks(history);
-  }, [history]);
+    return mapHistoryToTracks(history).filter(t => !dismissed.includes(t.videoId));
+  }, [history, dismissed]);
   
   const userFavorites = useMemo(() => {
-    return [...favorites].reverse();
-  }, [favorites]);
+    return [...favorites].reverse().filter(t => !dismissed.includes(t.videoId));
+  }, [favorites, dismissed]);
 
   useEffect(() => {
     setLoading(false);
@@ -127,18 +133,21 @@ export default function Home() {
             title="Listen Again"
             items={listenAgain}
             onPlay={playFromSearch}
+            onDismiss={dismissTrack}
             gridSize={homeGridSize}
           />
           <MusicSection
             title="Recommended"
             items={recommendedFeed}
             onPlay={playFromSearch}
+            onDismiss={dismissTrack}
             gridSize={homeGridSize}
           />
            <MusicSection
             title="Your Favourites"
             items={userFavorites}
             onPlay={playFromSearch}
+            onDismiss={dismissTrack}
             gridSize={homeGridSize}
           />
         </div>

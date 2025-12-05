@@ -8,11 +8,17 @@ function getThumbnailUrl(videoId: string): string {
 }
 
 export const feedGenerator = {
-  generate(history: HistoryItem[], favorites: Track[], queueHistory: Track[]): Track[] {
+  generate(history: HistoryItem[], favorites: Track[], queueHistory: Track[], dismissed: string[] = []): Track[] {
     const allVideos = new Map<string, Track>();
+    const dismissedSet = new Set(dismissed);
+
+    // Filter out dismissed items from the start
+    const validHistory = history.filter(item => !dismissedSet.has(item.videoId));
+    const validFavorites = favorites.filter(item => !dismissedSet.has(item.videoId));
+    const validQueueHistory = queueHistory.filter(item => !dismissedSet.has(item.videoId));
 
     // 1. Add played songs from history
-    history.forEach(play => {
+    validHistory.forEach(play => {
       allVideos.set(play.videoId, {
         id: play.videoId,
         videoId: play.videoId,
@@ -31,7 +37,7 @@ export const feedGenerator = {
     });
 
     // 2. Add or update with favorites (strongest signal)
-    favorites.forEach(fav => {
+    validFavorites.forEach(fav => {
       if (allVideos.has(fav.videoId)) {
         const video = allVideos.get(fav.videoId)!;
         video.source = 'favorite'; // Mark as a favorite
@@ -54,7 +60,7 @@ export const feedGenerator = {
     });
 
     // 3. Add potential discoveries from radio/queue history
-    queueHistory.forEach(queueItem => {
+    validQueueHistory.forEach(queueItem => {
       if (allVideos.has(queueItem.videoId)) return; // Already in library
       if (!queueItem.title || queueItem.title.toLowerCase() === 'unknown') return;
 
