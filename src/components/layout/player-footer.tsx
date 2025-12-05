@@ -63,7 +63,7 @@ export default function PlayerFooter() {
        {/* Mobile View */}
        <div className="sm:hidden h-full flex flex-col px-2 py-2">
             <div className="flex items-center w-full">
-                {currentTrack && (
+                {currentTrack ? (
                     <>
                         <Image 
                             src={currentTrack.thumbnail || 'https://placehold.co/64x64/1d1d1f/333?text=Music'} 
@@ -76,14 +76,19 @@ export default function PlayerFooter() {
                             <p className="text-sm font-medium truncate text-foreground">{currentTrack.title}</p>
                             <p className="text-xs text-muted-foreground truncate">{currentTrack.artist}</p>
                         </div>
-                        <Button variant="ghost" size="icon" onClick={handleLoveClick} className={cn("heart-btn ml-2 text-muted-foreground hover:text-primary", isLoved && "loved")} disabled={!currentTrack}>
-                            <Heart className="w-5 h-5" />
-                        </Button>
-                        <Button onClick={togglePlay} className="rounded-full p-2 w-10 h-10 ml-1" disabled={!currentTrack}>
-                            {isPlaying ? <Pause className="w-5 h-5 fill-current"/> : <Play className="w-5 h-5 fill-current pl-0.5"/>}
-                        </Button>
+                        <div className="flex items-center">
+                            <Button variant="ghost" size="icon" onClick={() => setVideoPlayerOpen(!isVideoPlayerOpen)} className={cn("text-muted-foreground h-9 w-9", isVideoPlayerOpen && "text-primary")} title="Toggle Video" disabled={!currentTrack}>
+                                <Laptop2 className="w-5 h-5" />
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={() => setQueueOpen(!isQueueOpen)} className={cn("text-muted-foreground h-9 w-9", isQueueOpen && 'text-primary')} disabled={!currentTrack} title="Queue">
+                                <ListMusic className="w-5 h-5"/>
+                            </Button>
+                            <Button onClick={togglePlay} className="rounded-full p-2 w-10 h-10 ml-1" disabled={!currentTrack}>
+                                {isPlaying ? <Pause className="w-5 h-5 fill-current"/> : <Play className="w-5 h-5 fill-current pl-0.5"/>}
+                            </Button>
+                        </div>
                     </>
-                )}
+                ) : <div className="h-10 w-full" /> }
             </div>
             <div className="w-full flex items-center space-x-2 text-xs text-muted-foreground mt-2">
                 <span>{formatTime(progress)}</span>
@@ -170,5 +175,3 @@ export default function PlayerFooter() {
     </footer>
   );
 }
-
-    
