@@ -28,6 +28,21 @@ export default function MainLayout({
     }
   }, [isSidebarOpen]);
 
+  useEffect(() => {
+    const faviconUrl = "https://www.nicepng.com/png/full/358-3582537_best-apollo-icon-android-lollipop-png-play-music.png";
+    
+    // Remove existing favicon links
+    const existingLinks = document.querySelectorAll<HTMLLinkElement>("link[rel~='icon']");
+    existingLinks.forEach(link => link.remove());
+
+    // Add new favicon link
+    const link = document.createElement('link');
+    link.rel = 'icon';
+    link.href = faviconUrl;
+    link.type = 'image/png';
+    document.head.appendChild(link);
+  }, [pathname]);
+
   return (
     <>
       <VideoPlayer />

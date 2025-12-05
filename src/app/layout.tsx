@@ -7,9 +7,6 @@ import MainLayout from '@/components/layout/main-layout';
 export const metadata: Metadata = {
   title: 'NodeMusic',
   description: 'Your daily dose of music, curated just for you.',
-  icons: {
-    icon: '/icon.png',
-  },
 };
 
 export default function RootLayout({
