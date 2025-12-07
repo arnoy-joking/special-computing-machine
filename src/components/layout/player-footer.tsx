@@ -4,7 +4,7 @@
 import { usePlayerStore, useUIStore, useLibraryStore } from "@/lib/store";
 import Image from "next/image";
 import { Button } from "../ui/button";
-import { Heart, SkipBack, SkipForward, Play, Pause, ListMusic, Shuffle, Repeat, Repeat1, Mic2, Laptop2 } from "lucide-react";
+import { Heart, SkipBack, SkipForward, Play, Pause, ListMusic, Shuffle, Repeat, Repeat1, Youtube, Laptop2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { Slider } from "@/components/ui/slider";
@@ -161,8 +161,10 @@ export default function PlayerFooter() {
 
         {/* Right Side */}
         <div className="flex items-center justify-end space-x-2 flex-1">
-            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground hidden md:inline-flex" title="Lyrics" disabled={!currentTrack}>
-              <Mic2 className="w-5 h-5" />
+            <Button asChild variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground hidden md:inline-flex" title="Open on YouTube" disabled={!currentTrack}>
+              <a href={currentTrack ? `https://www.youtube.com/watch?v=${currentTrack.videoId}` : '#'} target="_blank" rel="noopener noreferrer">
+                <Youtube className="w-5 h-5" />
+              </a>
             </Button>
             <Button variant="ghost" size="icon" onClick={() => setQueueOpen(!isQueueOpen)} className={cn("text-muted-foreground hover:text-foreground", isQueueOpen && 'text-primary bg-primary/10')} disabled={!currentTrack} title="Queue">
               <ListMusic className="w-5 h-5"/>
