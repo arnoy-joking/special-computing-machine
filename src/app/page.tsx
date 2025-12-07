@@ -90,7 +90,7 @@ export default function Home() {
   }, [history, favorites, queueHistory, dismissed]);
   
   const listenAgain = useMemo(() => {
-    return mapHistoryToTracks(history).filter(t => !dismissed.includes(t.videoId));
+    return mapHistoryToTracks(history.slice(0, 18)).filter(t => !dismissed.includes(t.videoId));
   }, [history, dismissed]);
   
   const userFavorites = useMemo(() => {
