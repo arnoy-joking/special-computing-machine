@@ -3,12 +3,12 @@
 
 import { useUIStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
-import { Grid, List, Minus, Plus } from "lucide-react";
+import { Grid, List, Minus, Plus, Video } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Slider } from "@/components/ui/slider";
 
 export default function SettingsPage() {
-    const { viewMode, setViewMode, homeGridSize, setHomeGridSize } = useUIStore();
+    const { viewMode, setViewMode, homeGridSize, setHomeGridSize, videoPlayerSize, setVideoPlayerSize } = useUIStore();
 
     return (
         <div>
@@ -56,6 +56,24 @@ export default function SettingsPage() {
                             step={1}
                         />
                          <Plus className="w-5 h-5 text-muted-foreground"/>
+                    </div>
+                </div>
+
+                <div className="p-6 rounded-lg border bg-card/50">
+                    <h3 className="text-lg font-semibold mb-4">Video Player Size</h3>
+                    <p className="text-sm text-muted-foreground mb-6">
+                        Adjust the width of the floating video player.
+                    </p>
+                    <div className="flex items-center gap-4">
+                        <Video className="w-5 h-5 text-muted-foreground"/>
+                        <Slider
+                            value={[videoPlayerSize]}
+                            onValueChange={(value) => setVideoPlayerSize(value[0])}
+                            min={256}
+                            max={640}
+                            step={8}
+                        />
+                         <Video className="w-8 h-8 text-muted-foreground"/>
                     </div>
                 </div>
             </div>

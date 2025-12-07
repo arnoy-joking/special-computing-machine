@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 
 export default function VideoPlayer() {
     const { setPlayer, setPlayerReady, isPlaying, updateProgress, nextTrack } = usePlayerStore();
-    const { isVideoPlayerOpen, setVideoPlayerOpen } = useUIStore();
+    const { isVideoPlayerOpen, setVideoPlayerOpen, videoPlayerSize } = useUIStore();
     const { toast } = useToast();
 
     const onReady = (event: { target: any }) => {
@@ -59,10 +59,13 @@ export default function VideoPlayer() {
     }, [isPlaying, updateProgress]);
 
     return (
-        <div id="video-wrapper" className={cn(
-            "fixed bottom-24 right-4 shadow-2xl rounded-lg overflow-hidden w-64 sm:w-80 aspect-video bg-black border border-border transition-all duration-300",
-            isVideoPlayerOpen ? "opacity-100 pointer-events-auto z-50" : "opacity-0 pointer-events-none -z-10"
-        )}>
+        <div id="video-wrapper" 
+            className={cn(
+                "fixed bottom-24 right-4 shadow-2xl rounded-lg overflow-hidden aspect-video bg-black border border-border transition-all duration-300",
+                isVideoPlayerOpen ? "opacity-100 pointer-events-auto z-50" : "opacity-0 pointer-events-none -z-10"
+            )}
+            style={{ width: `${videoPlayerSize}px` }}
+        >
             <YouTube
                 divId="yt-player"
                 opts={{
