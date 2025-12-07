@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect } from 'react';
@@ -6,14 +7,29 @@ import { usePlayerStore, useUIStore } from '@/lib/store';
 import { Button } from '../ui/button';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
 export default function VideoPlayer() {
     const { setPlayer, setPlayerReady, isPlaying, updateProgress, nextTrack } = usePlayerStore();
     const { isVideoPlayerOpen, setVideoPlayerOpen } = useUIStore();
+    const { toast } = useToast();
 
     const onReady = (event: { target: any }) => {
         setPlayer(event.target);
         setPlayerReady(true);
+    };
+
+    const onError = (event: { data: number }) => {
+        const errorCode = event.data;
+        // 101 and 150 are errors for "The owner of the requested video does not allow it to be played in embedded players."
+        if (errorCode === 101 || errorCode === 150) {
+            toast({
+                title: "Playback Error",
+                description: "Sorry, this song can't be played. Skipping to the next one.",
+                variant: 'destructive',
+            });
+            nextTrack();
+        }
     };
 
     const onStateChange = (event: { data: number }) => {
@@ -68,6 +84,7 @@ export default function VideoPlayer() {
                 }}
                 onReady={onReady}
                 onStateChange={onStateChange}
+                onError={onError}
                 className="w-full h-full"
              />
             <Button
