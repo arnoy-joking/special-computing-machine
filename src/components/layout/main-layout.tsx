@@ -34,7 +34,7 @@ export default function MainLayout({
       <div className="flex flex-1 overflow-hidden relative">
          {isSidebarOpen && <div onClick={toggleSidebar} className="sm:hidden fixed inset-0 bg-black/60 z-20" />}
         <AppSidebar />
-        <div className="flex-1 flex flex-col overflow-hidden pb-20 sm:pb-0">
+        <div className="flex-1 flex flex-col overflow-hidden pb-[6.5rem] sm:pb-20">
           <MobileHeader />
           <main className="flex-1 flex flex-col bg-background overflow-hidden">
             <section id="content-section" className="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6 lg:p-8">
