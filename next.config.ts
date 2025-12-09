@@ -35,6 +35,8 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       }
     ],
+    imageSizes: [64, 200], // Only generate these two sizes
+    deviceSizes: [], // Disable device-specific sizes
   },
 };
 
