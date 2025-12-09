@@ -37,7 +37,7 @@ export default function MainLayout({
         <AppSidebar />
         <div className="flex-1 flex flex-col overflow-hidden">
           <MobileHeader />
-          <main className="flex-1 flex flex-col bg-background overflow-hidden pb-[6.5rem] sm:pb-20">
+          <main className="flex-1 flex flex-col bg-background overflow-hidden pb-20">
             <section id="content-section" className="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6 lg:p-8">
               <motion.div
                 key={pathname}

@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 const STORAGE_KEYS = { HISTORY: 'music_history', FAVORITES: 'music_favorites', VIEW_MODE: 'music_view_mode', UI_STATE: 'music_ui_state' };
 
 function getThumbnailUrl(videoId: string, quality: 'low' | 'medium' | 'high' | 'max' = 'high'): string {
-    if (!videoId) return 'https://placehold.co/480x360/1c1c1c/666?text=Music';
+    if (!videoId) return 'https://placehold.co/200x200/1d1d1f/333?text=Music';
     const qualityMap = {
         low: 'default',
         medium: 'mqdefault',

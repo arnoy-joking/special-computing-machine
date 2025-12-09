@@ -76,7 +76,7 @@ export default function LyricsPanel() {
     const formattedLyrics = useMemo(() => {
         if (!lyricsData?.lyrics) return '';
         // Replace newlines with <br> for HTML rendering
-        return lyricsData.lyrics.replace(/\n/g, '<br />');
+        return lyricsData.lyrics.replace(/\\n/g, '<br />');
     }, [lyricsData]);
     
     return (
@@ -87,7 +87,7 @@ export default function LyricsPanel() {
                 className={cn(
                     "fixed top-0 right-0 bg-black/95 backdrop-blur-lg border-l border-border z-50 overflow-hidden shadow-2xl flex flex-col w-[85%] md:w-96 transform transition-transform duration-300 ease-in-out h-full",
                     isLyricsOpen ? "translate-x-0" : "translate-x-full",
-                    "pb-[6.5rem] sm:pb-20"
+                    "pb-20"
                 )}
             >
                 <div className="px-4 py-4 flex items-center justify-between border-b border-border bg-black/50 flex-shrink-0">
@@ -134,19 +134,18 @@ export default function LyricsPanel() {
 
                     {!loading && !error && !lyricsData && (
                          <div className="flex flex-col items-center justify-center h-full text-muted-foreground text-center">
-                             {!currentTrack && (
+                             {!currentTrack ? (
                                 <>
                                     <Music className="w-16 h-16 mb-4" />
                                     <p className="text-lg">Play a song to see its lyrics</p>
                                 </>
-                             )}
-                             {currentTrack && !geniusApiKey && (
+                             ) : !geniusApiKey ? (
                                  <>
                                     <Mic2 className="w-16 h-16 mb-4" />
                                     <p className="text-lg">No Genius API Key found.</p>
                                     <p className="text-sm">Please add one in Settings to enable lyrics.</p>
                                 </>
-                             )}
+                             ) : null}
                          </div>
                     )}
 

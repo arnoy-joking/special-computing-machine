@@ -62,7 +62,7 @@ export default function PlayerFooter() {
   const RepeatIcon = repeatMode === 'one' ? Repeat1 : Repeat;
 
   return (
-    <footer id="player-bar" className="fixed bottom-0 left-0 w-full bg-black/80 backdrop-blur-lg border-t border-border z-40 h-[6.5rem] sm:h-20">
+    <footer id="player-bar" className="fixed bottom-0 left-0 w-full bg-black/80 backdrop-blur-lg border-t border-border z-40 h-20">
        {/* Mobile View */}
        <div className="sm:hidden h-full flex flex-col px-2 py-2">
             <div className="flex items-center w-full">
@@ -93,7 +93,7 @@ export default function PlayerFooter() {
                     </>
                 ) : <div className="h-10 w-full" /> }
             </div>
-            <div className="w-full flex items-center space-x-2 text-xs text-muted-foreground mt-2">
+            <div className="w-full flex items-center space-x-2 text-xs text-muted-foreground mt-auto">
                 <span>{formatTime(progress)}</span>
                 <Slider
                     value={[progress]}
