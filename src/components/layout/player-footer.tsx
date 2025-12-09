@@ -4,7 +4,7 @@
 import { usePlayerStore, useUIStore, useLibraryStore } from "@/lib/store";
 import Image from "next/image";
 import { Button } from "../ui/button";
-import { Heart, SkipBack, SkipForward, Play, Pause, ListMusic, Shuffle, Repeat, Repeat1, Youtube, Laptop2 } from "lucide-react";
+import { Heart, SkipBack, SkipForward, Play, Pause, ListMusic, Shuffle, Repeat, Repeat1, Youtube, Laptop2, Mic2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { Slider } from "@/components/ui/slider";
@@ -23,6 +23,9 @@ export default function PlayerFooter() {
   const setVideoPlayerOpen = useUIStore((s) => s.setVideoPlayerOpen);
   const isQueueOpen = useUIStore((s) => s.isQueueOpen);
   const setQueueOpen = useUIStore((s) => s.setQueueOpen);
+  const isLyricsOpen = useUIStore((s) => s.isLyricsOpen);
+  const setLyricsOpen = useUIStore((s) => s.setLyricsOpen);
+  const geniusApiKey = useUIStore((s) => s.geniusApiKey);
   
   const [isLoved, setIsLoved] = useState(false);
 
@@ -161,6 +164,11 @@ export default function PlayerFooter() {
 
         {/* Right Side */}
         <div className="flex items-center justify-end space-x-2 flex-1">
+            {geniusApiKey && (
+              <Button variant="ghost" size="icon" onClick={() => setLyricsOpen(!isLyricsOpen)} className={cn("text-muted-foreground hover:text-foreground", isLyricsOpen && 'text-primary bg-primary/10')} disabled={!currentTrack} title="Lyrics">
+                <Mic2 className="w-5 h-5"/>
+              </Button>
+            )}
             <Button asChild variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground hidden md:inline-flex" title="Open on YouTube" disabled={!currentTrack}>
               <a href={currentTrack ? `https://www.youtube.com/watch?v=${currentTrack.videoId}` : '#'} target="_blank" rel="noopener noreferrer">
                 <Youtube className="w-5 h-5" />

@@ -5,6 +5,7 @@ import AppSidebar from '@/components/layout/app-sidebar';
 import PlayerFooter from '@/components/layout/player-footer';
 import VideoPlayer from '@/components/player/video-player';
 import QueuePanel from '@/components/layout/queue-panel';
+import LyricsPanel from '@/components/layout/lyrics-panel';
 import { useUIStore } from '@/lib/store';
 import MobileHeader from '@/components/layout/mobile-header';
 import { useEffect } from 'react';
@@ -51,6 +52,7 @@ export default function MainLayout({
           </main>
         </div>
         <QueuePanel />
+        <LyricsPanel />
       </div>
       <PlayerFooter />
     </>

@@ -86,6 +86,8 @@ interface UIState {
   toggleSidebarCollapse: () => void;
   isQueueOpen: boolean;
   setQueueOpen: (isOpen: boolean) => void;
+  isLyricsOpen: boolean;
+  setLyricsOpen: (isOpen: boolean) => void;
   isVideoPlayerOpen: boolean;
   setVideoPlayerOpen: (isOpen: boolean) => void;
   viewMode: 'grid' | 'list';
@@ -94,6 +96,8 @@ interface UIState {
   setHomeGridSize: (size: number) => void;
   videoPlayerSize: number;
   setVideoPlayerSize: (size: number) => void;
+  geniusApiKey: string | null;
+  setGeniusApiKey: (key: string | null) => void;
 }
 
 // --- Player Store ---
@@ -365,7 +369,15 @@ export const useUIStore = create<UIState>()(
       toggleSidebar: () => set(state => ({ isSidebarOpen: !state.isSidebarOpen })),
       toggleSidebarCollapse: () => set(state => ({ isSidebarCollapsed: !state.isSidebarCollapsed })),
       isQueueOpen: false,
-      setQueueOpen: (isOpen) => set({ isQueueOpen: isOpen }),
+      setQueueOpen: (isOpen) => set(state => {
+        if (isOpen) return { isQueueOpen: isOpen, isLyricsOpen: false };
+        return { isQueueOpen: isOpen };
+      }),
+      isLyricsOpen: false,
+      setLyricsOpen: (isOpen) => set(state => {
+        if (isOpen) return { isLyricsOpen: isOpen, isQueueOpen: false };
+        return { isLyricsOpen: isOpen };
+      }),
       isVideoPlayerOpen: false,
       setVideoPlayerOpen: (isOpen) => set({ isVideoPlayerOpen: isOpen }),
       viewMode: 'grid',
@@ -374,6 +386,8 @@ export const useUIStore = create<UIState>()(
       setHomeGridSize: (size) => set({ homeGridSize: size }),
       videoPlayerSize: 320,
       setVideoPlayerSize: (size) => set({ videoPlayerSize: size }),
+      geniusApiKey: null,
+      setGeniusApiKey: (key) => set({ geniusApiKey: key }),
     }),
     {
       name: STORAGE_KEYS.UI_STATE,
@@ -382,6 +396,7 @@ export const useUIStore = create<UIState>()(
         isSidebarCollapsed: state.isSidebarCollapsed,
         homeGridSize: state.homeGridSize,
         videoPlayerSize: state.videoPlayerSize,
+        geniusApiKey: state.geniusApiKey,
       }),
     }
   )

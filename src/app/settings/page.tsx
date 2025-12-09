@@ -3,12 +3,35 @@
 
 import { useUIStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
-import { Grid, List, Minus, Plus, Video } from "lucide-react";
+import { Grid, List, Minus, Plus, Video, KeyRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Slider } from "@/components/ui/slider";
+import { Input } from "@/components/ui/input";
+import { useState, useEffect } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function SettingsPage() {
-    const { viewMode, setViewMode, homeGridSize, setHomeGridSize, videoPlayerSize, setVideoPlayerSize } = useUIStore();
+    const { 
+        viewMode, setViewMode, 
+        homeGridSize, setHomeGridSize, 
+        videoPlayerSize, setVideoPlayerSize,
+        geniusApiKey, setGeniusApiKey
+    } = useUIStore();
+
+    const [apiKeyInput, setApiKeyInput] = useState(geniusApiKey || "");
+    const { toast } = useToast();
+
+    useEffect(() => {
+        setApiKeyInput(geniusApiKey || "");
+    }, [geniusApiKey]);
+
+    const handleSaveApiKey = () => {
+        setGeniusApiKey(apiKeyInput);
+        toast({
+            title: "API Key Saved",
+            description: "Your Genius API key has been updated.",
+        });
+    };
 
     return (
         <div>
@@ -74,6 +97,26 @@ export default function SettingsPage() {
                             step={8}
                         />
                          <Video className="w-8 h-8 text-muted-foreground"/>
+                    </div>
+                </div>
+                
+                <div className="p-6 rounded-lg border bg-card/50">
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2"><KeyRound className="w-5 h-5"/> Integrations</h3>
+                    <p className="text-sm text-muted-foreground mb-6">
+                        Provide API keys for third-party services like Genius for lyrics.
+                    </p>
+                    <div className="space-y-2">
+                        <label htmlFor="genius-api-key" className="text-sm font-medium">Genius API Key</label>
+                        <div className="flex gap-2">
+                            <Input 
+                                id="genius-api-key"
+                                type="password" 
+                                placeholder="Enter your Genius API Access Token" 
+                                value={apiKeyInput}
+                                onChange={(e) => setApiKeyInput(e.target.value)}
+                            />
+                            <Button onClick={handleSaveApiKey}>Save</Button>
+                        </div>
                     </div>
                 </div>
             </div>
