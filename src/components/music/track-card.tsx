@@ -1,3 +1,4 @@
+
 "use client";
 
 import Image from "next/image";
@@ -37,8 +38,8 @@ export function TrackCard({ track, onPlay, showDismiss = false, onDismiss }: Tra
         <Image 
           src={thumbnailUrl} 
           alt={track.title}
-          fill
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 200px"
+          width={200}
+          height={200}
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
           onError={(e) => { e.currentTarget.src = 'https://placehold.co/192x192/1d1d1f/333?text=Music' }}
         />

@@ -1,3 +1,4 @@
+
 "use client";
 
 import Image from "next/image";
@@ -35,9 +36,9 @@ export function TrackListItem({ track, onPlay, showFavoriteButton = false }: Tra
         <Image
           src={thumbnailUrl}
           alt={track.title}
-          fill
-          sizes="64px"
-          className="rounded-md object-cover"
+          width={64}
+          height={64}
+          className="rounded-md object-cover w-16 h-16"
           onError={(e) => { e.currentTarget.src = 'https://placehold.co/64x64/1d1d1f/333?text=Music' }}
         />
         <div className="absolute inset-0 bg-black/40 flex items-center justify-center rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
