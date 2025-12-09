@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-        const scraperUrl = `https://dark-feather-444a.arnoy799.workers.dev/?url=${encodeURIComponent(url)}`;
+        const scraperUrl = `https://my-genius-scraper.arnoy799.workers.dev/?url=${encodeURIComponent(url)}`;
         const response = await fetch(scraperUrl);
 
         if (!response.ok) {
@@ -20,8 +20,10 @@ export async function GET(request: NextRequest) {
             }, { status: response.status });
         }
 
-        const data = await response.json();
-        return NextResponse.json(data);
+        const lyricsText = await response.text();
+        return new Response(lyricsText, {
+            headers: { 'Content-Type': 'text/plain' },
+        });
 
     } catch (error: any) {
         return NextResponse.json({ 

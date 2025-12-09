@@ -2,14 +2,12 @@
 
 import { usePlayerStore, useUIStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
-import { X, Mic2, Loader2 } from "lucide-react";
+import { X, Mic2, Loader2, Music } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { useEffect, useState, useMemo } from "react";
 
-interface Lyrics {
-    title: string;
-    artist: string;
+interface LyricsData {
     lyrics: string;
     url: string;
 }
@@ -17,7 +15,7 @@ interface Lyrics {
 export default function LyricsPanel() {
     const { isLyricsOpen, setLyricsOpen, geniusApiKey } = useUIStore();
     const { currentTrack } = usePlayerStore();
-    const [lyrics, setLyrics] = useState<Lyrics | null>(null);
+    const [lyricsData, setLyricsData] = useState<LyricsData | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -28,14 +26,14 @@ export default function LyricsPanel() {
 
     useEffect(() => {
         if (!isLyricsOpen || !debouncedTrack || !geniusApiKey) {
-            setLyrics(null);
+            setLyricsData(null);
             return;
         }
 
         const fetchLyrics = async () => {
             setLoading(true);
             setError(null);
-            setLyrics(null);
+            setLyricsData(null);
 
             try {
                 // 1. Search for the song on Genius
@@ -58,12 +56,12 @@ export default function LyricsPanel() {
                 if (!scrapeRes.ok) {
                      throw new Error('Failed to load lyrics.');
                 }
-                const scrapeData = await scrapeRes.json();
-                 if (!scrapeData.lyrics) {
+                const lyricsText = await scrapeRes.text();
+                 if (!lyricsText) {
                     throw new Error('Lyrics content is empty.');
                 }
 
-                setLyrics(scrapeData);
+                setLyricsData({ lyrics: lyricsText, url: searchData.url });
 
             } catch (err: any) {
                 setError(err.message || 'An unknown error occurred.');
@@ -76,12 +74,10 @@ export default function LyricsPanel() {
     }, [isLyricsOpen, debouncedTrack, geniusApiKey]);
 
     const formattedLyrics = useMemo(() => {
-        if (!lyrics?.lyrics) return '';
-        // Remove the first line which often contains contributor count and "Translations"
-        const lines = lyrics.lyrics.split('\n');
-        const relevantLines = lines.slice(1);
-        return relevantLines.join('<br />');
-    }, [lyrics]);
+        if (!lyricsData?.lyrics) return '';
+        // Replace newlines with <br> for HTML rendering
+        return lyricsData.lyrics.replace(/\n/g, '<br />');
+    }, [lyricsData]);
     
     return (
         <>
@@ -132,15 +128,15 @@ export default function LyricsPanel() {
                         </div>
                     )}
 
-                    {!loading && !error && lyrics && (
+                    {!loading && !error && lyricsData && (
                         <div className="prose prose-invert text-lg whitespace-pre-wrap leading-relaxed" dangerouslySetInnerHTML={{ __html: formattedLyrics }} />
                     )}
 
-                    {!loading && !error && !lyrics && (
+                    {!loading && !error && !lyricsData && (
                          <div className="flex flex-col items-center justify-center h-full text-muted-foreground text-center">
                              {!currentTrack && (
                                 <>
-                                    <Mic2 className="w-16 h-16 mb-4" />
+                                    <Music className="w-16 h-16 mb-4" />
                                     <p className="text-lg">Play a song to see its lyrics</p>
                                 </>
                              )}
@@ -155,9 +151,9 @@ export default function LyricsPanel() {
                     )}
 
                 </div>
-                 {lyrics?.url && (
+                 {lyricsData?.url && (
                     <div className="px-4 py-3 border-t border-border bg-black/50 text-center text-xs text-muted-foreground">
-                        Lyrics provided by <a href={lyrics.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Genius</a>
+                        Lyrics provided by <a href={lyricsData.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Genius</a>
                     </div>
                 )}
             </div>
